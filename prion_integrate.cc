@@ -2,7 +2,6 @@
 #include "integrator.h"
 
 int main(){
-  /*
     double lambda = 0.2216;
     double deathRateInYears = 
     IntegrationParams integrationParams = {
@@ -17,5 +16,5 @@ struct ModelParams {
     //because it's not a terrible assumption that there's an intrinsic prion doubling time. Also, that's super complicated.
     //Note that if using to *fit* a model, you would want to keep pairs together! Please don't input actual averages from data.
 };
-    //*/
+
 }
