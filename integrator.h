@@ -10,10 +10,11 @@
 
 //Helper structs kept here to make it easier to read!
 
-//Store timestep for integration
+//Store timestep for integration.  All times are in years.
 struct IntegrationParams{
     double deltaTime;
     double deltaLogInfection;
+    double totalTime;
 };
 
 //Store human-readable model parameters
@@ -29,7 +30,14 @@ struct ModelParams {
 //Integrate with forward Euler scheme
 class Integrator {
 public:
-    Integrator(BirthScheme b, State state);
+    Integrator(
+        std::unique_ptr<BirthScheme> births,
+        std::unique_ptr<BirthScheme> deaths,
+        std::unique_ptr<State> state)
+    {
+        births_ = std::move(births);
+        sate_ = std::move(state);
+    }
     double* doBirths();
     double* doDeaths();
     double* setUpSusceptibles();
