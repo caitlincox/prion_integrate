@@ -13,8 +13,7 @@
 //Store timestep for integration
 struct IntegrationParams{
     double deltaTime;
-    double deltaAge;
-    double deltaInfection;
+    double deltaLogInfection;
 };
 
 //Store human-readable model parameters
@@ -28,17 +27,17 @@ struct ModelParams {
 };
 
 //Integrate with forward Euler scheme
-class forwardEuler {
+class ForwardEuler {
 public:
-    forwardEuler(BirthScheme b); //constructor
-    double * doBirths();
-    double * doDeaths();
-    double * setUpSusceptibles();
-    double * setUpInfecteds();
+    ForwardEuler(BirthScheme b, State state);
+    double* doBirths();
+    double* doDeaths();
+    double* setUpSusceptibles();
+    double* setUpInfecteds();
 
 private:
     std::unique_ptr<BirthScheme> births_;
-    State state_;
+    std::unique_ptr<State> state_;
     IntegrationParams stepSize_;
     ModelParams params_;
 };

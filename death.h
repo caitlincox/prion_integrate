@@ -3,9 +3,9 @@
 
 class Death{
 public:
+    Death(double kappa, double aveLifespan);
     double weibullDeathRate(double age);
     double findLambda(double aveLifespan, double kappa);
-    Death(double kappa, double aveLifespan); //constructor
 
     //getters and setters
     double getSurvivalKappa(){return weibullSurvivorshipKappa_;}
