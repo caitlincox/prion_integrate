@@ -31,23 +31,27 @@ struct ModelParams {
 class Integrator {
 public:
     Integrator(
+        IntegrationParams integrationParams,
+        ModelParams modelParams,
         std::unique_ptr<BirthScheme> births,
         std::unique_ptr<BirthScheme> deaths,
         std::unique_ptr<State> state)
     {
+        integrationParams_ = integrationParams;
+        modelParams_ = modelParams;
         births_ = std::move(births);
-        sate_ = std::move(state);
+        state_ = std::move(state);
     }
-    double* doBirths();
-    double* doDeaths();
-    double* setUpSusceptibles();
-    double* setUpInfecteds();
+    void run();
 
 private:
+    // Update state_ for the current time step.
+    void update();
+
+    IntegrationParams integrationParams_;
+    ModelParams modelParams_;
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<State> state_;
-    IntegrationParams stepSize_;
-    ModelParams params_;
 };
 
 #endif
