@@ -38,8 +38,7 @@ public:
 
 private:
     std::unique_ptr<BirthScheme> births_;
-    Susceptibles S_; //Not proper camalCase, but named thus to follow S-I-R convention
-    Infecteds I_;
+    State state_;
     IntegrationParams stepSize_;
     ModelParams params_;
 };

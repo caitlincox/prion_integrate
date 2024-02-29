@@ -1,5 +1,6 @@
 #ifndef DEATH
 #define DEATH
+
 class Death{
 public:
     double weibullDeathRate(double age);
@@ -7,12 +8,14 @@ public:
     Death(double kappa, double aveLifespan); //constructor
 
     //getters and setters
-    double getSurvivalKappa(){return weibullSurvivorshipKappa;}
-    double getSurvivalLambda(){return weibullSurvivorshipLambda;}
-    void setSurvivalKappa(double kappa){weibullSurvivorshipKappa = kappa;}
-    void setSurvivalLambda(double lambda){weibullSurvivorshipLambda = lambda;}
+    double getSurvivalKappa(){return weibullSurvivorshipKappa_;}
+    double getSurvivalLambda(){return weibullSurvivorshipLambda_;}
+    void setSurvivalKappa(double kappa){weibullSurvivorshipKappa_ = kappa;}
+    void setSurvivalLambda(double lambda){weibullSurvivorshipLambda_ = lambda;}
+
 private:
-    double weibullSurvivorshipLambda;
-    double weibullSurvivorshipKappa;
+    double weibullSurvivorshipLambda_;
+    double weibullSurvivorshipKappa_;
 };
+
 #endif
