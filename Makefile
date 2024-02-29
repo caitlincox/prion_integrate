@@ -13,8 +13,8 @@ death.cc \
 infecteds.cc \
 initialcondition.cc \
 integrator.cc \
-susceptibles.cc \
-testing.cc
+prion_integrate.cc \
+susceptibles.cc
 
 prion_integrate: $(HDRS) $(SRCS)
 	gcc -g -o prion_integrate $(SRCS) -lm

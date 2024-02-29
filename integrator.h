@@ -27,9 +27,9 @@ struct ModelParams {
 };
 
 //Integrate with forward Euler scheme
-class ForwardEuler {
+class Integrator {
 public:
-    ForwardEuler(BirthScheme b, State state);
+    Integrator(BirthScheme b, State state);
     double* doBirths();
     double* doDeaths();
     double* setUpSusceptibles();

@@ -7,7 +7,7 @@
 //Holds pointer to susceptibles array and allows for state to be updated
 class Susceptibles{
 public:
-    void setInitState(std::unique_ptr<std::vector<double>> current_state) {
+    Susceptibles(std::unique_ptr<std::vector<double>> current_state) {
       currentState_ = std::move(current_state);
     }
     std::vector<double>* getCurrentState() {return currentState_.get();}
