@@ -13,6 +13,7 @@
 //Store timestep for integration.  All times are in years.
 struct IntegrationParams{
     double deltaTime;
+    size_t numInfectionLoadBuckets; 
     double deltaLogInfection;
     double totalTime;
 };
@@ -47,11 +48,18 @@ public:
 private:
     // Update state_ for the current time step.
     void update();
+    void findSums();
 
     IntegrationParams integrationParams_;
     ModelParams modelParams_;
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<State> state_;
+    // Sums computed per step.
+    double totalInfection_;
+    double infectedPop_;
+    double susceptiblePop_;
+    // Computed in initialcontinsion.cc.
+    double intrinsicGrowthRate_;
 };
 
 #endif
