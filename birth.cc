@@ -4,17 +4,21 @@
 //Stupidest possible thing. Useful for debugging/checking intuition. Constant birth not perportional to population.
 class ConstantBirthScheme : public BirthScheme {
  public:
-    double calculateBirth() {
-      return birthConstant;
+    ConstantBirthScheme(double birthConstant) {
+        birthConstant_ = birthConstant;
+    }
+
+    double calculateBirth(const State& state) override {
+        return birthConstant_;
     };
 
-    //getters and setters
-    double getBirthConstant() {return birthConstant;}
-    void setBirthConstant(double value) {birthConstant = value;}
-
  private:
-    double birthConstant;
+    double birthConstant_;
 };
+
+std::unique_ptr<BirthScheme> newConstantBirthScheme(double birthConstant) {
+    return std::make_unique<ConstantBirthScheme>(birthConstant);
+}
 
 
 //SIR-inspired constant population. Sets birth equal to death. Was used in Stringer et al.

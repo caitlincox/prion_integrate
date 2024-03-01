@@ -8,12 +8,9 @@
 
 class Infecteds {
 public:
-    Infecteds(std::unique_ptr<std::vector<double>> currentState, size_t ageSize, size_t infectionSize) {
-        if (currentState->size() != ageSize * infectionSize) {
-            printf("Invalid table size!");
-            exit(1);
-        }
-        currentState_ = std::move(currentState);
+    Infecteds(size_t ageSize, size_t infectionSize) {
+        currentState_ = std::make_unique<std::vector<double>>();
+        currentState_->resize(ageSize * infectionSize);
         ageSize_ = ageSize;
         infectionSize_ = infectionSize;
     }

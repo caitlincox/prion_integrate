@@ -18,3 +18,6 @@ susceptibles.cc
 
 prion_integrate: $(HDRS) $(SRCS)
 	g++ -g -o prion_integrate $(SRCS) -lm
+
+clean:
+	rm -f prion_integrate
