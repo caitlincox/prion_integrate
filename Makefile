@@ -17,4 +17,4 @@ prion_integrate.cc \
 susceptibles.cc
 
 prion_integrate: $(HDRS) $(SRCS)
-	gcc -g -o prion_integrate $(SRCS) -lm
+	g++ -g -o prion_integrate $(SRCS) -lm

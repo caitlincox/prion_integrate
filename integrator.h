@@ -36,13 +36,7 @@ public:
         ModelParams modelParams,
         std::unique_ptr<BirthScheme> births,
         std::unique_ptr<BirthScheme> deaths,
-        std::unique_ptr<State> state)
-    {
-        integrationParams_ = integrationParams;
-        modelParams_ = modelParams;
-        births_ = std::move(births);
-        state_ = std::move(state);
-    }
+        std::unique_ptr<State> state);
     void run();
 
 private:
@@ -60,6 +54,7 @@ private:
     double susceptiblePop_;
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate_;
+    double firstBucketLogLoad_;
 };
 
 #endif
