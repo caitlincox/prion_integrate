@@ -1,8 +1,15 @@
 #ifndef INIT
 #define INIT
+#include <memory>
+#include <vector>
+
 class InitialConditions {
 public:
     double intrinsicGrowthRate(double aveLifespan, double aveInitInfectionLoad);
+    double weibullOfAge(double weibullLambda, double weibullKappa, double age);
+    std::unique_ptr<std::vector<double>> startingDistribution(double weibullLambda, double weibullKappa, double maxAge, double deltaT,
+                                                              double popSize);
+    std::unique_ptr<std::vector<double>> initialInfecteds();
 private:
 };
 #endif
