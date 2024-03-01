@@ -36,11 +36,12 @@ std::unique_ptr<std::vector<double>> InitialConditions::initialInfecteds(double 
     int numAgeBuckets = maxAge/deltaT; //Type cast for rounding.
     auto myvec = std::make_unique<std::vector<double>>();
     myvec->resize(numInfectionBuckets * numAgeBuckets);
-    for(int bucketInfection = 0; bucketInfection < numInfectionBuckets; bucketInfection++) {
+    for(int i = 0; i < numInfectionBuckets; i++) {
         int bucketAge = deltaT;
-        while(bucketAge < 1){
-            return 0;
+        for(int j = 0; j < numAgeBuckets; j++){
+            if(1 == 1) return 0;
         }
+
     }
 }
 
@@ -49,4 +50,5 @@ double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
     double g = aveInitInfectionLoad/c;
     double numerator = pow(infectionLoad/g, c-1) * exp(-infectionLoad/g);
     double denominator = g * tgamma(c);
+    return numerator/denominator;
 }
