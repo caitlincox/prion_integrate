@@ -13,6 +13,7 @@ int main(){
         .aveLifespan = 5.0,
         .aveInfectiousPeriod = 2.0,
         .aveInitInfectionLoad = 0.1,
+        .beta = 0.04,
     };
     return 0;
 }

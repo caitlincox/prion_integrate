@@ -26,6 +26,7 @@ struct ModelParams {
     double aveInitInfectionLoad; //and ave initial infection load. We don't carry over distributional properties
     //because it's not a terrible assumption that there's an intrinsic prion doubling time. Also, that's super complicated.
     //Note that if using to *fit* a model, you would want to keep pairs together! Please don't input actual averages from data.
+    double beta;  // This is a constant used to model the Beta function.
 };
 
 //Integrate with forward Euler scheme
