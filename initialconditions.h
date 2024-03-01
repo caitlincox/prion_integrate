@@ -10,7 +10,9 @@ public:
     double weibullOfAge(double weibullLambda, double weibullKappa, double age);
     std::unique_ptr<std::vector<double>> startingDistribution(double weibullLambda, double weibullKappa, double maxAge, double deltaT,
                                                               double popSize);
-    std::unique_ptr<std::vector<double>> initialInfecteds();
+    std::unique_ptr<std::vector<double>> initialInfecteds(double nunInfecteds, double deltaT, double maxAge, double numInfectionBuckets,
+                                                          double scaleParam, double shapeParam, const std::vector<double>& loadVec);
+
 };
 
 #endif
