@@ -18,13 +18,7 @@ int main(){
     };
     auto births = newConstantBirthScheme(-1.0);  // FIX ME!
     auto deaths = std::make_unique<Death>(modelParams.kappa, modelParams.aveLifespan);
-    size_t ageSize = modelParams.maxAge / integrationParams.deltaTime;
-    auto state = std::unique_ptr<State>(new State {
-        std::make_unique<Susceptibles>(ageSize),
-        std::make_unique<Infecteds>(ageSize, integrationParams.numInfectionLoadBuckets),
-        integrationParams,
-        modelParams,
-    });
+    auto state = std::make_unique<State>(integrationParams, modelParams);
     auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state));
     return 0;
 }
