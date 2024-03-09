@@ -35,25 +35,27 @@ double weibullOfAge(double lambda, double kappa, double age) {
     return firstComponent * exp(secondComponent);
 }
 
-//We put some infected density initially. To avoid discontinuities, it's added in the same way as the transfer function from susceptibles
-std::unique_ptr<std::vector<double>> initialInfecteds(const State& state, double numInfecteds, double deltaT, double maxAge, double numInfectionBuckets,
-                                                                         double scaleParam, double shapeParam, const std::vector<double>& loadVec,
-                                                                          std::vector<double>& susceptibles, double numSusceptibles, double aveLoad,
-                                                                          double c) {
-    int numAgeBuckets = maxAge/deltaT; //Type cast for rounding.
-    auto myvec = std::make_unique<std::vector<double>>();
-    myvec->resize(numInfectionBuckets * numAgeBuckets);
-    auto& myptr = *myvec;
-    for(int i = 0; i < numInfectionBuckets; i++) { //loop over infection levels
-        double gammaVal = gammaDist(loadVec[i], aveLoad, c); //Get perportion that lands in this infection level
-        for(int j = 0; j < numAgeBuckets; j++) { //loop over ages
-            if(j == 0 | i == 0) myptr[i * numInfectionBuckets] = 0; //if age = 0 or infection load = 0, no infecteds
+//We put some infected density initially. To avoid discontinuities, it's added
+//in the same way as the transfer function from susceptibles
+std::unique_ptr<std::vector<double>> initialInfecteds(const State& state) {
+    auto dist = std::make_unique<std::vector<double>>();
+    dist->resize(state.intParms.numInfectionLoadBuckets * state.compParms.ageSize);
+    auto& distRef = *dist;
+    auto& loadVec = *state.compParms.columnLoads;
+    double c = state.compParms.intrinsicGrowthRate;
+    std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
+    size_t numSusceptibles = susceptibles.size();
+    size_t numInfecteds = state.compParms.infectedPop;
+    for(int i = 0; i < state.intParms.numInfectionLoadBuckets; i++) { //loop over infection levels
+        double gammaVal = gammaDist(loadVec[i], state.compParms.aveLoad, c); //Get perportion that lands in this infection level
+        for(int j = 0; j < state.compParms.ageSize; j++) { //loop over ages
+            if(j == 0 | i == 0) distRef[i * state.intParms.numInfectionLoadBuckets] = 0; //if age = 0 or infection load = 0, no infecteds
             else {
                 double weight = susceptibles[i] / numSusceptibles; //get perportion of susceptibles at this age
                 double infectedVal = weight * gammaVal * numInfecteds; //get perportion of new infecteds at this bucket & age
-                myptr[i * numInfectionBuckets + j] = infectedVal; //put that value in the vector
+                distRef[i * state.intParms.numInfectionLoadBuckets + j] = infectedVal; //put that value in the vector
             }
         }
     }
-    return myvec;
+    return dist;
 }

@@ -9,9 +9,6 @@
 double intrinsicGrowthRate(double aveLifespan, double aveInitInfectionLoad);
 double weibullOfAge(double weibullLambda, double weibullKappa, double age);
 std::unique_ptr<std::vector<double>> startingDistribution(const State& state);
-std::unique_ptr<std::vector<double>> initialInfecteds(const State& state, double numInfecteds, double deltaT, double maxAge, double numInfectionBuckets,
-                                                                         double scaleParam, double shapeParam, const std::vector<double>& loadVec,
-                                                                          std::vector<double>& susceptibles, double numSusceptibles, double aveLoad,
-                                                                          double c);
+std::unique_ptr<std::vector<double>> initialInfecteds(const State& state);
 
 #endif

@@ -30,13 +30,14 @@ struct ModelParams {
 struct ComputedParams {
     // Currently computed in death.cc (unimplemented).
     double lambda = 0.0;
-    // Sums computed per step.
+    // Parameters computed per step.
     double ageSize = 0.0;
     double totalInfection = 0.0;
     double infectedPop = 0.0;
     double susceptiblePop = 0.0;
     double popSize = 0.0;  // Sum of infected and susceptible.
     double transferRate = 0.0;
+    double aveLoad = 0.0;
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate = 0.0;
     double firstBucketLogLoad = 0.0;
