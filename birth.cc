@@ -25,7 +25,7 @@ std::unique_ptr<BirthScheme> newConstantBirthScheme(double birthConstant) {
 class ReplacementBirthScheme : public BirthScheme {
 
 public:
-    double calculateBirth() {
+    double calculateBirth(const State& state) override {
       printf("Not implemented");
       return 0.0;
     }
@@ -36,7 +36,7 @@ public:
 class BirthRateBirthScheme : public BirthScheme {
 
 public:
-    double calculateBirth() {
+    double calculateBirth(const State& state) override {
       printf("Not implemmented");
       return 0.0;
     }

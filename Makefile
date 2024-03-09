@@ -14,6 +14,7 @@ infecteds.cc \
 initialconditions.cc \
 integrator.cc \
 prion_integrate.cc \
+state.cc \
 susceptibles.cc
 
 prion_integrate: $(HDRS) $(SRCS)

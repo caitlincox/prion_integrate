@@ -21,7 +21,6 @@ public:
 private:
     // Update state_ for the current time step.
     void update();
-    void findSums();
 
     IntegrationParams integrationParams_;
     ModelParams modelParams_;

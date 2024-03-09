@@ -41,23 +41,5 @@ void Integrator::run() {
 }
 
 void Integrator::update() {
-    findSums();
-}
-
-void Integrator::findSums() {
-    size_t maxAgeStep = state_->modParms.maxAge/state_->intParms.deltaTime;
-    auto& compParms = state_->compParms;
-    compParms.totalInfection = 0.0;
-    compParms.infectedPop = 0.0;
-    compParms.susceptiblePop = 0.0;
-    compParms.transferRate = 0.0;
-    auto& columnLoads = *compParms.columnLoads;
-    for (size_t ageIndex = 0; ageIndex < maxAgeStep; ageIndex++) {
-        compParms.susceptiblePop += (*state_->susceptibles->getCurrentState())[ageIndex];
-        for (size_t infectionIndex = 1; infectionIndex < state_->intParms.numInfectionLoadBuckets; infectionIndex++) {
-            double popAtLoad = state_->infecteds->getIndex(ageIndex, infectionIndex);
-            compParms.infectedPop += popAtLoad;
-            compParms.transferRate += state_->modParms.beta * columnLoads[infectionIndex] * popAtLoad;
-        }
-    }
+    state_->findSums();
 }

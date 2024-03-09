@@ -15,16 +15,14 @@ double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
 }
 
 //Set up the initial distribution of susceptibles. For now we set up with Weibull distribution, in accorance with Weibull death.
-std::unique_ptr<std::vector<double>> startingDistribution(const State& state, double lambda, double kappa, double maxAge, double deltaT,
-                                                                             double popSize) {
-    int numAgeBuckets = maxAge/deltaT; //Type cast for rounding.
-    auto myvec = std::make_unique<std::vector<double>>();
-    myvec->resize(numAgeBuckets);
-    auto& myptr = *myvec;
-    for (int i = 0; i < numAgeBuckets; i++){
-        myptr[i] = weibullOfAge(lambda, kappa, deltaT * i) * popSize;
+std::unique_ptr<std::vector<double>> startingDistribution(const State& state) {
+    auto dist = std::make_unique<std::vector<double>>();
+    dist->resize(state.compParms.ageSize);
+    auto& distRef = *dist;
+    for (int i = 0; i < state.compParms.ageSize; i++) {
+        distRef[i] = weibullOfAge(state.compParms.lambda, state.modParms.kappa, state.intParms.deltaTime * i) * state.compParms.popSize;
     }
-    return myvec;
+    return dist;
 }
 
 //The way Stringer et al. did initial distribution was using a steady state Weibull. 
@@ -41,14 +39,14 @@ double weibullOfAge(double lambda, double kappa, double age) {
 std::unique_ptr<std::vector<double>> initialInfecteds(const State& state, double numInfecteds, double deltaT, double maxAge, double numInfectionBuckets,
                                                                          double scaleParam, double shapeParam, const std::vector<double>& loadVec,
                                                                           std::vector<double>& susceptibles, double numSusceptibles, double aveLoad,
-                                                                          double c){
+                                                                          double c) {
     int numAgeBuckets = maxAge/deltaT; //Type cast for rounding.
     auto myvec = std::make_unique<std::vector<double>>();
     myvec->resize(numInfectionBuckets * numAgeBuckets);
     auto& myptr = *myvec;
     for(int i = 0; i < numInfectionBuckets; i++) { //loop over infection levels
         double gammaVal = gammaDist(loadVec[i], aveLoad, c); //Get perportion that lands in this infection level
-        for(int j = 0; j < numAgeBuckets; j++){ //loop over ages
+        for(int j = 0; j < numAgeBuckets; j++) { //loop over ages
             if(j == 0 | i == 0) myptr[i * numInfectionBuckets] = 0; //if age = 0 or infection load = 0, no infecteds
             else {
                 double weight = susceptibles[i] / numSusceptibles; //get perportion of susceptibles at this age

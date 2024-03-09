@@ -28,18 +28,21 @@ struct ModelParams {
 
 // Parameters computed on the fly.
 struct ComputedParams {
+    // Currently computed in death.cc (unimplemented).
+    double lambda = 0.0;
     // Sums computed per step.
     double ageSize = 0.0;
     double totalInfection = 0.0;
     double infectedPop = 0.0;
     double susceptiblePop = 0.0;
+    double popSize = 0.0;  // Sum of infected and susceptible.
     double transferRate = 0.0;
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate = 0.0;
     double firstBucketLogLoad = 0.0;
     // These are the infections loads for column i in the infecteds table.
     // The first column has all 0's meaning no infecteds have zero load.
-    // Also there are no 0-age infectes, so the 0 row is also 0's.
+    // Also there are no 0-age infecteds, so the 0 row is also 0's.
     std::unique_ptr<std::vector<double>> columnLoads;
 };
 
@@ -57,6 +60,9 @@ struct State {
     IntegrationParams intParms;
     ModelParams modParms;
     ComputedParams compParms;
+
+    // Compute various sums and write results to compParms.
+    void findSums();
 };
 
 #endif

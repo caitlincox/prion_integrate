@@ -1,7 +1,7 @@
 #include "death.h"
 #include "integrator.h"
 
-int main(){
+int main() {
     IntegrationParams integrationParams = {
         .deltaTime = 0.01,
         .numInfectionLoadBuckets = 100,
