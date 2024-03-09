@@ -16,9 +16,9 @@ int main() {
         .beta = 0.04,
         .kappa = 2.0,
     };
-    auto births = newConstantBirthScheme(-1.0);  // FIX ME!
-    auto deaths = std::make_unique<Death>(modelParams.kappa, modelParams.aveLifespan);
     auto state = std::make_unique<State>(integrationParams, modelParams);
+    auto births = newConstantBirthScheme(-1.0);  // FIX ME!
+    auto deaths = std::make_unique<Death>(*state);
     auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state));
     return 0;
 }

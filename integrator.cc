@@ -41,5 +41,5 @@ void Integrator::run() {
 }
 
 void Integrator::update() {
-    state_->findSums();
+    state_->updateComputedParameters();
 }

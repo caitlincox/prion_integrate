@@ -46,14 +46,13 @@ struct ComputedParams {
     std::unique_ptr<std::vector<double>> columnLoads;
 };
 
+// This structure contains all state in the system, including parameters
+// computed on the fly.  It is effectively the shared database, and all modules
+// read from and write to it directly.
 struct State {
-    State(IntegrationParams integrationParams, ModelParams modelParams) {
-        compParms.ageSize = modelParams.maxAge / integrationParams.deltaTime;
-        susceptibles = std::make_unique<Susceptibles>(compParms.ageSize);
-        infecteds = std::make_unique<Infecteds>(compParms.ageSize, integrationParams.numInfectionLoadBuckets);
-        intParms = integrationParams;
-        modParms = modelParams;
-    }
+    State(IntegrationParams integrationParams, ModelParams modelParams);
+    // After taking a time step, update computed parameters such as popSize.
+    void updateComputedParameters();
 
     std::unique_ptr<Susceptibles> susceptibles;
     std::unique_ptr<Infecteds> infecteds;
@@ -61,8 +60,8 @@ struct State {
     ModelParams modParms;
     ComputedParams compParms;
 
-    // Compute various sums and write results to compParms.
-    void findSums();
+private:
+    void initializeComputedParameters();
 };
 
 #endif

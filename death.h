@@ -1,11 +1,12 @@
 #ifndef DEATH
 #define DEATH
 
+#include "state.h"
+
 class Death {
 public:
-    Death(double kappa, double aveLifespan);
+    Death(const State& state);
     double weibullDeathRate(double age);
-    double findLambda(double aveLifespan, double kappa);
 
     //getters and setters
     double getSurvivalKappa() {return weibullSurvivorshipKappa_;}
