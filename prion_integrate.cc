@@ -22,8 +22,9 @@ int main(){
     auto state = std::unique_ptr<State>(new State {
         std::make_unique<Susceptibles>(ageSize),
         std::make_unique<Infecteds>(ageSize, integrationParams.numInfectionLoadBuckets),
+        integrationParams,
+        modelParams,
     });
-    auto integrator = Integrator(integrationParams, modelParams,
-        std::move(births), std::move(deaths), std::move(state));
+    auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state));
     return 0;
 }

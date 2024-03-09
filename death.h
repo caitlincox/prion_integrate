@@ -1,7 +1,7 @@
 #ifndef DEATH
 #define DEATH
 
-class Death{
+class Death {
 public:
     Death(double kappa, double aveLifespan);
     double weibullDeathRate(double age);
