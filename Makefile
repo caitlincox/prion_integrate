@@ -11,7 +11,7 @@ SRCS= \
 birth.cc \
 death.cc \
 infecteds.cc \
-initialcondition.cc \
+initialconditions.cc \
 integrator.cc \
 prion_integrate.cc \
 susceptibles.cc

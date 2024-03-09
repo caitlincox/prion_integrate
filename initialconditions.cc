@@ -6,6 +6,15 @@ double InitialConditions::intrinsicGrowthRate(double aveLifespan, double aveInit
     return log(1/aveInitInfectionLoad)/aveLifespan;
 }
 
+
+//Gamma distribution from paper. g an c are scale and shape params. 
+double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
+    double g = aveInitInfectionLoad/c;
+    double numerator = pow(infectionLoad/g, c-1) * exp(-infectionLoad/g);
+    double denominator = g * tgamma(c);
+    return numerator/denominator;
+}
+
 //Set up the initial distribution of susceptibles. For now we set up with Weibull distribution, in accorance with Weibull death.
 std::unique_ptr<std::vector<double>> InitialConditions::startingDistribution(double lambda, double kappa, double maxAge, double deltaT,
                                                                              double popSize) {
@@ -50,12 +59,4 @@ std::unique_ptr<std::vector<double>> InitialConditions::initialInfecteds(double 
         }
     }
     return myvec;
-}
-
-//Gamma distribution from paper. g an c are scale and shape params. 
-double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
-    double g = aveInitInfectionLoad/c;
-    double numerator = pow(infectionLoad/g, c-1) * exp(-infectionLoad/g);
-    double denominator = g * tgamma(c);
-    return numerator/denominator;
 }
