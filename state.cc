@@ -59,6 +59,7 @@ State::State(IntegrationParams integrationParams, ModelParams modelParams) {
     setInitialInfecteds(*this);
     updateComputedParameters();
     verifySusceptibleTotal(*this, modParms.initialSusceptiblePop);
+    verifyInfectedTotal(*this, modParms.initialInfectedPop);
 }
 
 void State::updateComputedParameters() {

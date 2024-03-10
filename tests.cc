@@ -16,7 +16,17 @@ void verifySusceptibleTotal(const State& state, double expectedTotal) {
 }
 
 void verifyInfectedTotal(const State& state, double expectedTotal) {
-    // TODO: write me.
+    double total = 0.0;
+    for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
+        for (size_t xLoad = 1; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
+            double popAtLoad = state.infecteds->getIndex(xAge, xLoad);
+            if (xAge == 0) {
+                assert(popAtLoad == 0.0);
+            }
+            total += popAtLoad;
+        }
+    }
+    assertAproxEqual(total, expectedTotal);
 }
 
 void runTests(const State& state, bool expectConstantPop) {
