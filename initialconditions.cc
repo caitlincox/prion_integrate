@@ -47,23 +47,28 @@ void setInitialInfecteds(const State& state) {
     std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
     size_t numSusceptibles = state.modParms.initialSusceptiblePop;
     size_t numInfecteds = state.intParms.numInfectionLoadBuckets;
+    double totalInfected = 0.0;
     // loop over ages
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
-        // double gammaVal = gammaDist(loadVec[xLoad], state.compParms.aveLoad, c);
-        //
-        // For now, this should cause the initial infecteds to add to numInfecteds:
-        // This is just a constant amount in each bucket.
-        double gammaVal = 1.0 / state.intParms.numInfectionLoadBuckets;
+        double gammaVal = gammaDist(loadVec[xLoad], state.compParms.aveLoad, c);
         // Loop over infection levels.  if age = 0, no infecteds.
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get proportion of susceptibles at this age.
             double weight = susceptibles[xAge] / (numSusceptibles - susceptibles[0]);
             // Get proportion of new infecteds at this bucket & age.
             double infectedVal = weight * gammaVal * numInfecteds;
+            totalInfected += infectedVal;
             infecteds.setIndex(xAge, xLoad,  infectedVal);
+        }
+    }
+    // Normalize the initial infections to get the correct total infected population.
+    double normalizer = state.modParms.initialInfectedPop / totalInfected;
+    for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
+        for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+            infecteds.setIndex(xAge, xLoad,  normalizer * infecteds.getIndex(xAge, xLoad));
         }
     }
 }
