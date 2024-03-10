@@ -3,6 +3,6 @@
 
 #include "state.h"
 
-void runTests(const State& state);
+void runTests(const State& state, bool expectConstantPop);
 
 #endif

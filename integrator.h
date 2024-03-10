@@ -15,7 +15,8 @@ public:
     Integrator(
         std::unique_ptr<BirthScheme> births,
         std::unique_ptr<Death> deaths,
-        std::unique_ptr<State> state);
+        std::unique_ptr<State> state,
+        bool expectConstantPop);
     void run();
 
 private:
@@ -25,6 +26,7 @@ private:
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;
     std::unique_ptr<State> state_;
+    bool expectConstantPop_;
 };
 
 #endif

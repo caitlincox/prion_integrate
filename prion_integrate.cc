@@ -21,7 +21,7 @@ int main() {
     auto state = std::make_unique<State>(integrationParams, modelParams);
     auto births = newReplacementBirthScheme();
     auto deaths = std::make_unique<Death>(*state);
-    auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state));
+    auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state), true);
     integrator.run();
     return 0;
 }
