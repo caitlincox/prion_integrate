@@ -4,6 +4,8 @@
 #include "infecteds.h"
 #include "susceptibles.h"
 
+#include <string>
+
 //Helper structs kept here to make it easier to read!
 
 // Integration parameters.  All times are in years.
@@ -40,12 +42,13 @@ struct ComputedParams {
     double popSize = 0.0;  // Sum of infected and susceptible.
     double transferRate = 0.0;
     double aveLoad = 0.0;
+    double ageDeaths = 0.0;
+    double infectionDeaths = 0.0;
+    double maxInfectedsBucketPop = 0.0;
+    double maxSusceptiblesBucketPop = 0.0;
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate = 0.0;
     double firstBucketLogLoad = 0.0;
-    // Computed in update().
-    double ageDeaths = 0.0;
-    double infectionDeaths = 0.0;
     // These are the infections loads for column i in the infecteds table.
     // The first column has all 0's meaning no infecteds have zero load.
     // Also there are no 0-age infecteds, so the 0 row is also 0's.
@@ -61,6 +64,10 @@ struct State {
     void timeStep();
     // After taking a time step, update computed parameters such as popSize.
     void updateComputedParameters();
+    // Write a portable greymap (.pgm) image from the infecteds.
+    void writeInfectedsPGM(const std::string& filename);
+    // Write a portable bitmap (.pbm) graph for the suseptibles.
+    void writeSusceptiblesPBM(const std::string& filename);
 
     std::unique_ptr<Susceptibles> susceptibles;
     std::unique_ptr<Infecteds> infecteds;
