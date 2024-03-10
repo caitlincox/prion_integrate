@@ -52,11 +52,12 @@ void State::initializeComputedParameters() {
 }
 
 State::State(IntegrationParams integrationParams, ModelParams modelParams) {
-    initializeComputedParameters();
-    susceptibles = std::make_unique<Susceptibles>(compParms.ageSize);
-    infecteds = std::make_unique<Infecteds>(compParms.ageSize, integrationParams.numInfectionLoadBuckets);
+    size_t ageSize = modelParams.maxAge / integrationParams.deltaTime;
+    susceptibles = std::make_unique<Susceptibles>(ageSize);
+    infecteds = std::make_unique<Infecteds>(ageSize, integrationParams.numInfectionLoadBuckets);
     intParms = integrationParams;
     modParms = modelParams;
+    initializeComputedParameters();
     setInitialInfecteds(*this);
     updateComputedParameters();
     verifySusceptibleTotal(*this, modParms.initialSusceptiblePop);
