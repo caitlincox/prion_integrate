@@ -44,8 +44,8 @@ struct ComputedParams {
     double intrinsicGrowthRate = 0.0;
     double firstBucketLogLoad = 0.0;
     // Computed in update().
-    double ageDeatsh = 0.0;
-    odulbe infectionDeaths = 0.0;
+    double ageDeaths = 0.0;
+    double infectionDeaths = 0.0;
     // These are the infections loads for column i in the infecteds table.
     // The first column has all 0's meaning no infecteds have zero load.
     // Also there are no 0-age infecteds, so the 0 row is also 0's.

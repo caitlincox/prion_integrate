@@ -1,6 +1,7 @@
 #include "state.h"
 
 #include <cmath>
+#include <cstring>
 
 #include "initialconditions.h"
 
@@ -84,31 +85,32 @@ void State::updateComputedParameters() {
 
 void State::timeStep() {
     // Compute deaths before the memmove.
-    compParms.ageDeatsh = 0.0;
+    compParms.ageDeaths = 0.0;
     size_t xMaxAge = compParms.ageSize - 1;
     for (size_t xLoad = 0; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
         compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad);
     }
     // Compute deaths from infection.
-    compParms.infectionDeath = 0.0;
+    compParms.infectionDeaths = 0.0;
     size_t xMaxLoad = intParms.numInfectionLoadBuckets - 1;
     // The special case of the bucket that would die both from age and
     // infection is added to the age deaths.
     for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
-        compParms.infectionDeath += infecteds->getIndex(xAge, xMaxLoad);
+        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad);
     }
     // Now advance time by deltaTime.
     // Move all susceptiblees to one higher age index.
-    std::vector<double>& susVec = *susceptibles->getcurrentstate();
+    std::vector<double>& susVec = *susceptibles->getCurrentState();
     double* susPtr = &susVec[0];
-    std::memmove(susPtr + 1, susPtr, xMaxAge);
+    memmove(susPtr + 1, susPtr, xMaxAge);
+    *susPtr = 0.0;  // Set births to 0.
     // Move all the infectes both by a deltaTime and increase infection.
     // This simply moves data by 1 in both age and infection dimensions.
-    double* infectdPtr = infecteds->getInfectionRow(0);
+    double* infectedPtr = infecteds->getInfectionRow(0);
     size_t numMoving = xMaxAge * intParms.numInfectionLoadBuckets - 1;
-    std::memmove(infectedPtr + intParms.numInfectionLoadBuckets + 1, infectedPtr, numMoving);
+    memmove(infectedPtr + intParms.numInfectionLoadBuckets + 1, infectedPtr, numMoving);
     // Zero out the min infection buckets.
-    for (size_t xAge = 0; xLoad < compParms.ageSize; xAge++) {
-        infecteds.setIndex(xAge, 0, 0.0);
+    for (size_t xAge = 0; xAge < compParms.ageSize; xAge++) {
+        infecteds->setIndex(xAge, 0, 0.0);
     }
 }

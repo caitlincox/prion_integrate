@@ -12,6 +12,7 @@ public:
         currentState_->resize(ageSize);
     }
     std::vector<double>* getCurrentState() { return currentState_.get(); }
+    void setBirths(double births);
 
 private:
     std::unique_ptr<std::vector<double>> currentState_;

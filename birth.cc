@@ -25,12 +25,12 @@ class ReplacementBirthScheme : public BirthScheme {
 
 public:
     double calculateBirth(const State& state) override {
-        return compParms.ageDeaths + compParms.infectionDeaths;
+        return state.compParms.ageDeaths + state.compParms.infectionDeaths;
     }
 };
 
 std::unique_ptr<BirthScheme> newReplacementBirthScheme() {
-    return std::make_unique<ConstantBirthScheme>();
+    return std::make_unique<ReplacementBirthScheme>();
 }
 
 //Biologically more accurate birth, but we don't change the birthrate by age.
