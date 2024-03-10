@@ -24,7 +24,7 @@ void setStartingDistribution(const State& state) {
     assert(state.compParms.lambda != 0.0);
     for (int i = 0; i < state.compParms.ageSize; i++) {
         dist[i] = weibullOfAge(state.compParms.lambda, state.modParms.kappa,
-                state.intParms.deltaTime * i) * state.modParms.initialSusceptiblePopSize;
+                state.intParms.deltaTime * i) * state.modParms.initialSusceptiblePop;
     }
 }
 
@@ -45,7 +45,7 @@ void setInitialInfecteds(const State& state) {
     std::vector<double>& loadVec = *state.compParms.columnLoads;
     double c = state.compParms.intrinsicGrowthRate;
     std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
-    size_t numSusceptibles = state.modParms.initialSusceptiblePopSize;
+    size_t numSusceptibles = state.modParms.initialSusceptiblePop;
     size_t numInfecteds = state.intParms.numInfectionLoadBuckets;
     // loop over ages
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {

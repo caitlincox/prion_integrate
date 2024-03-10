@@ -15,8 +15,8 @@ int main() {
         .aveInitInfectionLoad = 0.1,
         .beta = 0.04,
         .kappa = 2.0,
-        .initialSusceptiblePopSize = 10'000.0 - 1.0,
-        .initialInfectedPopSize = 1.0
+        .initialSusceptiblePop = 10'000.0 - 1.0,
+        .initialInfectedPop = 1.0
     };
     auto state = std::make_unique<State>(integrationParams, modelParams);
     auto births = newReplacementBirthScheme();

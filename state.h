@@ -24,8 +24,8 @@ struct ModelParams {
     //Note that if using to *fit* a model, you would want to keep pairs together! Please don't input actual averages from data.
     double beta;  // This is a constant used to model the Beta function.
     double kappa;
-    double initialSusceptiblePopSize;
-    double initialInfectedPopSize;
+    double initialSusceptiblePop;
+    double initialInfectedPop;
 };
 
 // Parameters computed on the fly.

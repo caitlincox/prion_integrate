@@ -2,24 +2,27 @@
 
 #include <cassert>
 
-void verifyScuseptibleTotal(const State& state) {
-    // TODO: write me.
-}
-
-void verifyInfectedTotal(const State& state) {
-    // TODO: write me.
-}
-
 void assertAproxEqual(double a, double b) {
     assert(std::abs(a - b) < 0.0001 * (a + b)/2.0);
 }
 
+void verifySusceptibleTotal(const State& state, double expectedTotal) {
+    double total = 0.0;
+    std::vector<double>& dist = *state.susceptibles->getCurrentState();
+    for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
+        total += dist[xAge];
+    }
+    assertAproxEqual(total, expectedTotal);
+}
+
+void verifyInfectedTotal(const State& state, double expectedTotal) {
+    // TODO: write me.
+}
+
 void runTests(const State& state, bool expectConstantPop) {
-    verifyScuseptibleTotal(state);
-    verifyInfectedTotal(state);
     if (expectConstantPop) {
-        double expectedPop = state.modParms.initialSusceptiblePopSize +
-                state.modParms.initialInfectedPopSize;
+        double expectedPop = state.modParms.initialSusceptiblePop +
+                state.modParms.initialInfectedPop;
         double actualPop = state.compParms.susceptiblePop + state.compParms.infectedPop;
         assertAproxEqual(expectedPop, actualPop);
     }

@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "initialconditions.h"
+#include "tests.h"
 
 namespace {
 
@@ -57,6 +58,7 @@ State::State(IntegrationParams integrationParams, ModelParams modelParams) {
     modParms = modelParams;
     setInitialInfecteds(*this);
     updateComputedParameters();
+    verifySusceptibleTotal(*this, modParms.initialSusceptiblePop);
 }
 
 void State::updateComputedParameters() {

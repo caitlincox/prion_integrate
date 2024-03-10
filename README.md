@@ -12,6 +12,6 @@
 * Write some test code:
 ** Verify initial infected total is right.
 ** Verify initial susceptible total is right.
-** Verify that replacement birth scheme leads to constant pop size.
 * Is aveLoad over the entire pop or just infecteds?  Fix in State::updateComputedParameters
+* Debug
 * Watch every line execute in debugger.
