@@ -15,10 +15,13 @@ int main() {
         .aveInitInfectionLoad = 0.1,
         .beta = 0.04,
         .kappa = 2.0,
+        .initialSusceptiblePopSize = 10'000.0 - 1.0,
+        .initialInfectedPopSize = 1.0
     };
     auto state = std::make_unique<State>(integrationParams, modelParams);
-    auto births = newConstantBirthScheme(-1.0);  // FIX ME!
+    auto births = newReplacementBirthScheme();
     auto deaths = std::make_unique<Death>(*state);
     auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state));
+    integrator.run();
     return 0;
 }

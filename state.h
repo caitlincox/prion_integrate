@@ -6,8 +6,8 @@
 
 //Helper structs kept here to make it easier to read!
 
-//Store timestep for integration.  All times are in years.
-struct IntegrationParams{
+// Integration parameters.  All times are in years.
+struct IntegrationParams {
     double deltaTime;
     size_t numInfectionLoadBuckets; 
     double deltaLogInfection;
@@ -24,6 +24,8 @@ struct ModelParams {
     //Note that if using to *fit* a model, you would want to keep pairs together! Please don't input actual averages from data.
     double beta;  // This is a constant used to model the Beta function.
     double kappa;
+    double initialSusceptiblePopSize;
+    double initialInfectedPopSize;
 };
 
 // Parameters computed on the fly.
@@ -31,7 +33,7 @@ struct ComputedParams {
     // Currently computed in death.cc (unimplemented).
     double lambda = 0.0;
     // Parameters computed per step.
-    double ageSize = 0.0;
+    size_t ageSize = 0;
     double totalInfection = 0.0;
     double infectedPop = 0.0;
     double susceptiblePop = 0.0;
@@ -41,6 +43,9 @@ struct ComputedParams {
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate = 0.0;
     double firstBucketLogLoad = 0.0;
+    // Computed in update().
+    double ageDeatsh = 0.0;
+    odulbe infectionDeaths = 0.0;
     // These are the infections loads for column i in the infecteds table.
     // The first column has all 0's meaning no infecteds have zero load.
     // Also there are no 0-age infecteds, so the 0 row is also 0's.
@@ -52,6 +57,8 @@ struct ComputedParams {
 // read from and write to it directly.
 struct State {
     State(IntegrationParams integrationParams, ModelParams modelParams);
+    // Update the state to reflect the state after a deltaTime step.
+    void timeStep();
     // After taking a time step, update computed parameters such as popSize.
     void updateComputedParameters();
 

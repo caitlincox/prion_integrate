@@ -24,5 +24,6 @@ void Integrator::run() {
 }
 
 void Integrator::update() {
+    state->timeStep();
     state_->updateComputedParameters();
 }

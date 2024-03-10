@@ -22,8 +22,6 @@ private:
     // Update state_ for the current time step.
     void update();
 
-    IntegrationParams integrationParams_;
-    ModelParams modelParams_;
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;
     std::unique_ptr<State> state_;

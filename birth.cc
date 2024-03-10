@@ -20,17 +20,18 @@ std::unique_ptr<BirthScheme> newConstantBirthScheme(double birthConstant) {
     return std::make_unique<ConstantBirthScheme>(birthConstant);
 }
 
-
 //SIR-inspired constant population. Sets birth equal to death. Was used in Stringer et al.
 class ReplacementBirthScheme : public BirthScheme {
 
 public:
     double calculateBirth(const State& state) override {
-      printf("Not implemented");
-      return 0.0;
+        return compParms.ageDeaths + compParms.infectionDeaths;
     }
 };
 
+std::unique_ptr<BirthScheme> newReplacementBirthScheme() {
+    return std::make_unique<ConstantBirthScheme>();
+}
 
 //Biologically more accurate birth, but we don't change the birthrate by age.
 class BirthRateBirthScheme : public BirthScheme {

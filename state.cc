@@ -19,34 +19,31 @@ void State::initializeComputedParameters() {
         modParms.aveLifespan, modParms.aveInitInfectionLoad);
     compParms.ageSize = modParms.maxAge / intParms.deltaTime;
     compParms.lambda = findLambda(modParms.aveLifespan, modParms.kappa);
+    setStartingDistribution(*this);
     // We represent load buckets on a natural log scale.  This model throws
     // away loads that are very small, which otherwise would show up as animals
     // with longer incubation periods.  To model longer incubation periods,
     // increase the number of infection load buckets.
     //
-    // The first bucket we force to 0, and the minimum infection load supported is
-    // the value in the next column (at index 1).  We have to compute this
-    // bucket's load.  Call 'b' the number of infection load buckets.  When
-    // load reaches 1, the animal dies, so the max bucket is the one just
-    // before reaching 1.  We can compute 1 = e^w * e^(C*dt*(b-1)) => 0 = w +
-    // C*dt*(b-1) => w = -C*dt*(b-1).  The first bucket we force to be 0 load,
-    // but the next has e^w.  After that the load is
-    // (e^w)*e^(C*dt*(bucketIndex-1)), where bucketIndex is on the infection
-    // load axis.  We make bucketIndex == 0 a special case where load == 0, and
-    // pop == 0, and at bucketIndex == 1, we have the minimum represented load
-    // of e^w.
+    // The first bucket at load index 0 has load e^w, the minimum infection
+    // load modeled.  We have to compute this bucket's load.  Call 'b' the
+    // number of infection load buckets.  When load reaches 1, the animal dies,
+    // so the max bucket is the one just before reaching 1.  We can compute 1 =
+    // e^w * e^(C*dt*b) => 0 = w + C*dt*b => w = -C*dt*b.  The first bucketk
+    // has load e^w.  After that the load is (e^w)*e^(C*dt*bucketIndex),
+    // where bucketIndex is on the infection load axis.  At bucketIndex == 0,
+    // we have the minimum represented load of e^w.  The bucket index with
+    // infection load == 1 is not represented, as the animals would be dead.
     compParms.firstBucketLogLoad = -compParms.intrinsicGrowthRate *
-        intParms.deltaTime * (intParms.numInfectionLoadBuckets - 1);
+        intParms.deltaTime * intParms.numInfectionLoadBuckets;
     compParms.columnLoads = std::make_unique<std::vector<double>>();
     compParms.columnLoads->resize(intParms.numInfectionLoadBuckets);
     // Compute the infection load for each bucket.
     auto& columnLoads = *compParms.columnLoads;
-    // First bucket is always 0.
-    columnLoads[0] = 0.0;
-    // Second bucket is e^w.
-    columnLoads[1] = exp(compParms.firstBucketLogLoad);
-    for (size_t i = 2; i < intParms.numInfectionLoadBuckets; i++) {
-        columnLoads[i] = exp(compParms.firstBucketLogLoad + (i - 1) * intParms.deltaTime *
+    // First bucket is e^w.
+    columnLoads[0] = exp(compParms.firstBucketLogLoad);
+    for (size_t i = 1; i < intParms.numInfectionLoadBuckets; i++) {
+        columnLoads[i] = exp(compParms.firstBucketLogLoad + i * intParms.deltaTime *
             compParms.intrinsicGrowthRate);
     }
 }
@@ -57,6 +54,8 @@ State::State(IntegrationParams integrationParams, ModelParams modelParams) {
     infecteds = std::make_unique<Infecteds>(compParms.ageSize, integrationParams.numInfectionLoadBuckets);
     intParms = integrationParams;
     modParms = modelParams;
+    setInitialInfecteds(*this);
+    updateComputedParameters();
 }
 
 void State::updateComputedParameters() {
@@ -69,16 +68,47 @@ void State::updateComputedParameters() {
     double totalLoad = 0.0;
     auto& columnLoads = *compParms.columnLoads;
     auto& susceptiblesVec = *susceptibles->getCurrentState();
-    for (size_t ageIndex = 0; ageIndex < maxAgeStep; ageIndex++) {
-        compParms.susceptiblePop += susceptiblesVec[ageIndex];
-        for (size_t infectionIndex = 1; infectionIndex < intParms.numInfectionLoadBuckets; infectionIndex++) {
-            double popAtLoad = infecteds->getIndex(ageIndex, infectionIndex);
+    for (size_t xAge = 0; xAge < maxAgeStep; xAge++) {
+        compParms.susceptiblePop += susceptiblesVec[xAge];
+        for (size_t xLoad = 1; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
+            double popAtLoad = infecteds->getIndex(xAge, xLoad);
             compParms.infectedPop += popAtLoad;
-            compParms.transferRate += modParms.beta * columnLoads[infectionIndex] * popAtLoad;
-            totalLoad += columnLoads[infectionIndex] * popAtLoad;
+            compParms.transferRate += modParms.beta * columnLoads[xLoad] * popAtLoad;
+            totalLoad += columnLoads[xLoad] * popAtLoad;
         }
     }
     compParms.popSize = compParms.susceptiblePop + compParms.infectedPop;
 // FIX ME: Should this be popSize instead?
     compParms.aveLoad = totalLoad / compParms.infectedPop;
+}
+
+void State::timeStep() {
+    // Compute deaths before the memmove.
+    compParms.ageDeatsh = 0.0;
+    size_t xMaxAge = compParms.ageSize - 1;
+    for (size_t xLoad = 0; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
+        compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad);
+    }
+    // Compute deaths from infection.
+    compParms.infectionDeath = 0.0;
+    size_t xMaxLoad = intParms.numInfectionLoadBuckets - 1;
+    // The special case of the bucket that would die both from age and
+    // infection is added to the age deaths.
+    for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
+        compParms.infectionDeath += infecteds->getIndex(xAge, xMaxLoad);
+    }
+    // Now advance time by deltaTime.
+    // Move all susceptiblees to one higher age index.
+    std::vector<double>& susVec = *susceptibles->getcurrentstate();
+    double* susPtr = &susVec[0];
+    std::memmove(susPtr + 1, susPtr, xMaxAge);
+    // Move all the infectes both by a deltaTime and increase infection.
+    // This simply moves data by 1 in both age and infection dimensions.
+    double* infectdPtr = infecteds->getInfectionRow(0);
+    size_t numMoving = xMaxAge * intParms.numInfectionLoadBuckets - 1;
+    std::memmove(infectedPtr + intParms.numInfectionLoadBuckets + 1, infectedPtr, numMoving);
+    // Zero out the min infection buckets.
+    for (size_t xAge = 0; xLoad < compParms.ageSize; xAge++) {
+        infecteds.setIndex(xAge, 0, 0.0);
+    }
 }

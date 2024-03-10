@@ -13,5 +13,6 @@ public:
 
 // Add one of these for each scheme.
 std::unique_ptr<BirthScheme> newConstantBirthScheme(double birthConstant);
+std::unique_ptr<BirthScheme> newReplacementBirthScheme();
 
 #endif

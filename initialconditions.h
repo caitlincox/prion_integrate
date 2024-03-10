@@ -8,7 +8,7 @@
 
 double intrinsicGrowthRate(double aveLifespan, double aveInitInfectionLoad);
 double weibullOfAge(double weibullLambda, double weibullKappa, double age);
-std::unique_ptr<std::vector<double>> startingDistribution(const State& state);
-std::unique_ptr<std::vector<double>> initialInfecteds(const State& state);
+void setStartingDistribution(const State& state);
+void setInitialInfecteds(const State& state);
 
 #endif
