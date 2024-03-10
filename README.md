@@ -10,8 +10,8 @@
 * Fix gammaVal computation such that the totals of all infected after initial
   state is equal to initialInfecteds.
 * Write some test code:
-    - Verify initial infected total is right.
-    - Verify initial susceptible total is right.
-    - Verify that replacement birth scheme leads to constant pop size.
+** Verify initial infected total is right.
+** Verify initial susceptible total is right.
+** Verify that replacement birth scheme leads to constant pop size.
 * Is aveLoad over the entire pop or just infecteds?  Fix in State::updateComputedParameters
 * Watch every line execute in debugger.
