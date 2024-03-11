@@ -5,8 +5,6 @@
 * Lotss of debugging!
 * Compute lambda.
 * Implement function to infect susceptibles at a given time step.
-* What is the Deaths class for?  Will it kill animals before either death by age or infection?
-* Fix gammaVal computation such that the totals of all infected after initial.
-  state is equal to initialInfecteds.
+* Implement Death class.  Currently, animals only die throug hitting max age or infection >= 1.0.
 * Is aveLoad over the entire pop or just infecteds?  Fix in State::updateComputedParameters.
 * Watch every line execute in debugger.
