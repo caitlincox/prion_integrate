@@ -9,9 +9,10 @@
 
 namespace {
 
+// Weibull survivorship lambda
 double findLambda(double aveLifespan, double kappa) {
-  printf("Not implemented");
-  return 0.0;
+  double lamNumerator = gammaf((kappa + 1)/kappa);
+  return lamNumerator / aveLifespan;
 }
 
 }
