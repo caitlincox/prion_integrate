@@ -10,7 +10,7 @@ int main() {
     };
     ModelParams modelParams = {
         .maxAge = 10.0,
-        .aveLifespan = 5.0,
+        .aveLifespan = 4.0,
         .aveInfectiousPeriod = 2.0,
         .aveInitInfectionLoad = 0.1,
         .beta = 0.04,

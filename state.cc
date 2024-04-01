@@ -11,7 +11,7 @@ namespace {
 
 // Weibull survivorship lambda
 double findLambda(double aveLifespan, double kappa) {
-  double lamNumerator = gammaf((kappa + 1)/kappa);
+  double lamNumerator = tgamma((kappa + 1)/kappa);
   return lamNumerator / aveLifespan;
 }
 

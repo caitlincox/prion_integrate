@@ -25,6 +25,7 @@ void setStartingDistribution(const State& state) {
     for (int i = 0; i < state.compParms.ageSize; i++) {
         dist[i] = weibullOfAge(state.compParms.lambda, state.modParms.kappa,
                 state.intParms.deltaTime * i) * state.modParms.initialSusceptiblePop;
+        double hold_this = dist[i];
     }
 }
 
