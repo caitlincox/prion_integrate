@@ -16,7 +16,8 @@ double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
     return numerator/denominator;
 }
 
-//Set up the initial distribution of susceptibles. For now we set up with Weibull distribution, in accorance with Weibull death.
+// Set up the initial distribution of susceptibles. For now we set up with
+// Weibull distribution, in accorance with Weibull death.
 void setStartingDistribution(const State& state) {
     std::vector<double>& dist = *state.susceptibles->getCurrentState();
     assert(dist.size() == state.compParms.ageSize);
@@ -28,13 +29,13 @@ void setStartingDistribution(const State& state) {
     }
 }
 
-//The way Stringer et al. did initial distribution was using a steady state Weibull. 
-//This is just an implementation of the Weibull distribution density function.
+// The way Stringer et al. did initial distribution was using a steady state Weibull. 
+// This is just an implementation of the Weibull distribution density function.
 double weibullOfAge(double lambda, double kappa, double age) {
     double ratio1 = kappa/lambda;
     double ratio2 = age/lambda;
-    double firstComponent = ratio1 * pow(ratio2, kappa - 1); //breaking the calculation into parts
-    double secondComponent = -pow(ratio2,kappa);
+    double firstComponent = ratio1 * pow(ratio2, kappa - 1); // breaking the calculation into parts
+    double secondComponent = -pow(ratio2, kappa);
     return firstComponent * exp(secondComponent);
 }
 

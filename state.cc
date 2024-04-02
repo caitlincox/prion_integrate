@@ -152,7 +152,23 @@ void State::writeInfectedsPGM(const std::string& filename) const {
     fclose(file);
 }
 
-void State::writeSusceptiblesPBM(const std::string& filename) const {
+namespace {
+
+void setBit(bool* bitmap, size_t rows, size_t columns, size_t x, size_t y, uint32_t width) {
+    size_t left = x > width? x - width : 0;
+    size_t bottom = y > width? y - width : 0;
+    size_t right = x + width < columns? x + width : columns;
+    size_t top = y + width < rows? y + width : rows;
+    for (size_t xp = left; xp <= right; xp++) {
+        for (size_t yp = bottom; yp <= top; yp++) {
+            bitmap[yp * columns + xp] = true;
+        }
+    }
+}
+
+}  // namespace
+
+void State::writeSusceptiblesPBM(const std::string& filename, uint32_t width) const {
     size_t columns = compParms.ageSize;
     size_t rows = columns / 3;
     bool* bitmap = new bool[rows * columns];
@@ -160,12 +176,12 @@ void State::writeSusceptiblesPBM(const std::string& filename) const {
     for (size_t xAge = 0; xAge < columns; xAge++) {
         double popAtAge = dist[xAge];
         size_t rowIndex = (columns - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesPopDensity);
-        bitmap[rowIndex * columns + xAge] = true;
+        setBit(bitmap, rows, columns, xAge, rowIndex, width);
     }
     FILE* file = fopen(filename.c_str(), "w");
     fprintf(file, "P1\n%u %u\n", columns, rows);
-    for (size_t xCol = 0; xCol < columns; xCol++) {
-        for (size_t xRow = 0; xRow < rows; xRow++) {
+    for (size_t xRow = 0; xRow < rows; xRow++) {
+        for (size_t xCol = 0; xCol < columns; xCol++) {
             bool filled = bitmap[xRow * columns + xCol];
             char c = filled? '1' : '0';
             fputc(c, file);
