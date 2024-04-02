@@ -54,7 +54,7 @@ void setInitialInfecteds(const State& state) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
-        double gammaVal = gammaDist(loadVec[xLoad], state.compParms.aveLoad, c);
+        double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, c);
         // Loop over infection levels.  if age = 0, no infecteds.
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get proportion of susceptibles at this age.
