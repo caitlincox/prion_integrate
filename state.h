@@ -70,7 +70,7 @@ struct State {
     // Write a portable greymap (.pgm) image from the infecteds.
     void writeInfectedsPGM(const std::string& filename) const;
     // Write a portable bitmap (.pbm) graph for the suseptibles.
-    void writeSusceptiblesPBM(const std::string& filename) const;
+    void writeSusceptiblesPBM(const std::string& filename, uint32_t width) const;
 
     std::unique_ptr<Susceptibles> susceptibles;
     std::unique_ptr<Infecteds> infecteds;
