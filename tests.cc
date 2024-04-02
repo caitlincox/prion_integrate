@@ -19,11 +19,11 @@ void verifyInfectedTotal(const State& state, double expectedTotal) {
     double total = 0.0;
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
         for (size_t xLoad = 1; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
-            double popAtLoad = state.infecteds->getIndex(xAge, xLoad);
+            double popDensityAtLoad = state.infecteds->getIndex(xAge, xLoad);
             if (xAge == 0) {
-                assert(popAtLoad == 0.0);
+                assert(popDensityAtLoad == 0.0);
             }
-            total += popAtLoad * state.intParms.deltaTime * state.intParms.deltaLogInfection;
+            total += popDensityAtLoad * state.intParms.deltaTime * state.compParms.deltaLogInfection;
         }
     }
     assertAproxEqual(total, expectedTotal);

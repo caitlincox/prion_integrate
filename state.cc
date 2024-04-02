@@ -20,6 +20,7 @@ double findLambda(double aveLifespan, double kappa) {
 // Initialize computed parameters, including those computed up-front.
 void State::initializeComputedParameters() {
     compParms.intrinsicGrowthRate = intrinsicGrowthRate(modParms);
+    compParms.deltaLogInfection = compParms.intrinsicGrowthRate * intParms.deltaTime;
     compParms.ageSize = modParms.maxAge / intParms.deltaTime;
     compParms.lambda = findLambda(modParms.aveLifespan, modParms.kappa);
     setStartingDistribution(*this);

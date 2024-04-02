@@ -46,7 +46,7 @@ void setInitialInfecteds(const State& state) {
     double c = state.compParms.intrinsicGrowthRate;
     std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
     size_t numSusceptibles = state.modParms.initialSusceptiblePop;
-    size_t numInfecteds = state.intParms.numInfectionLoadBuckets;
+    size_t numInfecteds = state.modParms.initialInfectedPop;
     double totalInfected = 0.0;
     // loop over ages
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
@@ -65,7 +65,9 @@ void setInitialInfecteds(const State& state) {
         }
     }
     // Normalize the initial infections to get the correct total infected population.
-    double normalizer = state.modParms.initialInfectedPop / totalInfected;
+    double deltaArea = state.intParms.deltaTime * state.compParms.deltaLogInfection;
+    double normalizer = state.modParms.initialInfectedPop / (deltaArea * totalInfected);
+    printf("Initial infected normalizer = %f\n", normalizer);
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             infecteds.setIndex(xAge, xLoad,  normalizer * infecteds.getIndex(xAge, xLoad));

@@ -12,7 +12,6 @@
 struct IntegrationParams {
     double deltaTime;
     size_t numInfectionLoadBuckets; 
-    double deltaLogInfection;
     double totalTime;
 };
 
@@ -32,6 +31,9 @@ struct ModelParams {
 
 // Parameters computed on the fly.
 struct ComputedParams {
+    // Change in log(infection) between infection buckets.  For 100 buckets, it
+    // should be close to 0.001.
+    double deltaLogInfection;
     // Currently computed in death.cc (unimplemented).
     double lambda = 0.0;
     // Parameters computed per step.

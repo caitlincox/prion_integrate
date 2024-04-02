@@ -5,7 +5,6 @@ int main() {
     IntegrationParams integrationParams = {
         .deltaTime = 0.01,
         .numInfectionLoadBuckets = 100,
-        .deltaLogInfection = 0.1,
         .totalTime = 15.0,
     };
     ModelParams modelParams = {
