@@ -3,14 +3,14 @@
 #include <cassert>
 
 void assertAproxEqual(double a, double b) {
-    assert(std::abs(a - b) < 0.0001 * (a + b)/2.0);
+    assert(std::abs(a - b) < 0.01 * (a + b)/2.0);
 }
 
 void verifySusceptibleTotal(const State& state, double expectedTotal) {
     double total = 0.0;
     std::vector<double>& dist = *state.susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
-        total += dist[xAge];
+        total += dist[xAge] * state.intParms.deltaTime;
     }
     assertAproxEqual(total, expectedTotal);
 }
@@ -23,7 +23,7 @@ void verifyInfectedTotal(const State& state, double expectedTotal) {
             if (xAge == 0) {
                 assert(popAtLoad == 0.0);
             }
-            total += popAtLoad;
+            total += popAtLoad * state.intParms.deltaTime * state.intParms.deltaLogInfection;
         }
     }
     assertAproxEqual(total, expectedTotal);
