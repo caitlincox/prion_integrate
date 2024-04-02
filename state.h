@@ -27,6 +27,7 @@ struct ModelParams {
     double kappa;
     double initialSusceptiblePop;
     double initialInfectedPop;
+    double gammaShapeParam; //in Stringer et al. this param is called "c"
 };
 
 // Parameters computed on the fly.
@@ -49,7 +50,7 @@ struct ComputedParams {
     double maxInfectedsPopDensity = 0.0;
     double maxSusceptiblesPopDensity = 0.0;
     // Computed in initialcontinsion.cc.
-    double intrinsicGrowthRate = 0.0;
+    double intrinsicGrowthRate = 0.0; //in Stringer et al. this param is called c1
     double firstBucketLogLoad = 0.0;
     // These are the infections loads for column i in the infecteds table.
     // The first column has all 0's meaning no infecteds have zero load.

@@ -9,15 +9,14 @@ double intrinsicGrowthRate(const ModelParams& modParms) {
 
 // TODO: which paper?
 // Gamma distribution from paper. g an c are scale and shape params. 
-double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
-    double g = aveInitInfectionLoad/c;
-    double numerator = pow(infectionLoad/g, c-1) * exp(-infectionLoad/g);
-    double denominator = g * tgamma(c);
+double gammaDist(double infectionLoad, double aveInitInfectionLoad, double shapeParam) {
+    double g = aveInitInfectionLoad/shapeParam;
+    double numerator = pow(infectionLoad/g, shapeParam-1) * exp(-infectionLoad/g);
+    double denominator = g * tgamma(shapeParam);
     return numerator/denominator;
 }
 
-// Set up the initial distribution of susceptibles. For now we set up with
-// Weibull distribution, in accorance with Weibull death.
+//Set up the initial distribution of susceptibles. For now we set up with Weibull distribution, in accorance with Weibull death.
 void setStartingDistribution(const State& state) {
     std::vector<double>& dist = *state.susceptibles->getCurrentState();
     assert(dist.size() == state.compParms.ageSize);
@@ -29,14 +28,18 @@ void setStartingDistribution(const State& state) {
     }
 }
 
-// The way Stringer et al. did initial distribution was using a steady state Weibull. 
-// This is just an implementation of the Weibull distribution density function.
-double weibullOfAge(double lambda, double kappa, double age) {
-    double ratio1 = kappa/lambda;
-    double ratio2 = age/lambda;
-    double firstComponent = ratio1 * pow(ratio2, kappa - 1); // breaking the calculation into parts
-    double secondComponent = -pow(ratio2, kappa);
-    return firstComponent * exp(secondComponent);
+//The way Stringer et al. did initial distribution was using a steady state Weibull. 
+//This is just an implementation of the Weibull distribution density function.
+//double weibullOfAge(double lambda, double kappa, double age) {
+ //   double ratio1 = kappa/lambda;
+ //   double ratio2 = age/lambda;
+ //   double firstComponent = ratio1 * pow(ratio2, kappa - 1); //breaking the calculation into parts
+ //   double secondComponent = -pow(ratio2,kappa);
+ //   return firstComponent * exp(secondComponent);
+//}
+
+double weibullOfAge(double lambda, double kappa, double age){
+    double value = exp(-pow(age * lambda, kappa));
 }
 
 //We put some infected density initially. To avoid discontinuities, it's added
@@ -44,18 +47,21 @@ double weibullOfAge(double lambda, double kappa, double age) {
 void setInitialInfecteds(const State& state) {
     auto& infecteds = *state.infecteds;
     std::vector<double>& loadVec = *state.compParms.columnLoads;
-    double c = state.compParms.intrinsicGrowthRate;
+    double shapeParam = state.modParms.gammaShapeParam;
     std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
     size_t numSusceptibles = state.modParms.initialSusceptiblePop;
     size_t numInfecteds = state.modParms.initialInfectedPop;
-    double deltaArea = state.intParms.deltaTime * state.compParms.deltaLogInfection;
     double totalInfected = 0.0;
+    double deltaInfection = state.compParms.deltaLogInfection;
+    double deltaArea = state.intParms.deltaTime * deltaInfection;
+
     // loop over age
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
-        double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, c);
+        double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
+
         // Loop over infection levels. Skip age 0 -- no infections
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.
