@@ -15,7 +15,8 @@ int main() {
         .beta = 0.04,
         .kappa = 2.0,
         .initialSusceptiblePop = 10'000.0 - 1.0,
-        .initialInfectedPop = 1.0
+        .initialInfectedPop = 1.0,
+        .gammaShapeParam = 5.0
     };
     auto state = std::make_unique<State>(integrationParams, modelParams);
     auto births = newReplacementBirthScheme();

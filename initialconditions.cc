@@ -9,10 +9,10 @@ double intrinsicGrowthRate(const ModelParams& modParms) {
 
 // TODO: which paper?
 // Gamma distribution from paper. g an c are scale and shape params. 
-double gammaDist(double infectionLoad, double aveInitInfectionLoad, double c) {
-    double g = aveInitInfectionLoad/c;
-    double numerator = pow(infectionLoad/g, c-1) * exp(-infectionLoad/g);
-    double denominator = g * tgamma(c);
+double gammaDist(double infectionLoad, double aveInitInfectionLoad, double shapeParam) {
+    double g = aveInitInfectionLoad/shapeParam;
+    double numerator = pow(infectionLoad/g, shapeParam-1) * exp(-infectionLoad/g);
+    double denominator = g * tgamma(shapeParam);
     return numerator/denominator;
 }
 
@@ -43,18 +43,20 @@ double weibullOfAge(double lambda, double kappa, double age) {
 void setInitialInfecteds(const State& state) {
     auto& infecteds = *state.infecteds;
     std::vector<double>& loadVec = *state.compParms.columnLoads;
-    double c = state.compParms.intrinsicGrowthRate;
+    double shapeParam = state.modParms.gammaShapeParam;
     std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
     size_t numSusceptibles = state.modParms.initialSusceptiblePop;
     size_t numInfecteds = state.modParms.initialInfectedPop;
-    double deltaArea = state.intParms.deltaTime * state.compParms.deltaLogInfection;
     double totalInfected = 0.0;
     // loop over age
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
-        double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, c);
+        double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
+        double deltaInfection = state.compParms.deltaLogInfection * exp(state.compParms.deltaLogInfection);
+        double deltaArea = state.intParms.deltaTime * deltaInfection;
+
         // Loop over infection levels. Skip age 0 -- no infections
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.
