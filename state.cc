@@ -137,16 +137,16 @@ void State::writeInfectedsPGM(const std::string& filename) const {
     size_t rows = intParms.numInfectionLoadBuckets;
     size_t columns = compParms.ageSize;
     FILE* file = fopen(filename.c_str(), "w");
-    fprintf(file, "P2\n%u %u\n", columns, rows);
-    for (size_t xAge = 0; xAge < columns; xAge++) {
+    fprintf(file, "P2\n%u %u\n255\n", columns, rows);
+    for (size_t xLoad = 0; xLoad < rows; xLoad++) {
         bool firstTime = true;
-        for (size_t xLoad = 0; xLoad < rows; xLoad++) {
+        for (size_t xAge = 0; xAge < columns; xAge++) {
             if (!firstTime) {
                 fputc(' ', file);
             }
             firstTime = false;
-            double popAtLoad = infecteds->getIndex(xAge, rows - 1 - xLoad);
-            fprintf(file, "%u", popAtLoad * 255 / compParms.maxInfectedsPopDensity);
+            double popDensityAtLoad = infecteds->getIndex(xAge, rows - 1 - xLoad);
+            fprintf(file, "%u", (uint32_t)(popDensityAtLoad * 255 / compParms.maxInfectedsPopDensity));
         }
         fputc('\n', file);
     }
