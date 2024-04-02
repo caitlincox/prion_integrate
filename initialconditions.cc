@@ -49,17 +49,17 @@ void setInitialInfecteds(const State& state) {
     size_t numInfecteds = state.modParms.initialInfectedPop;
     double deltaArea = state.intParms.deltaTime * state.compParms.deltaLogInfection;
     double totalInfected = 0.0;
-    // loop over ages
+    // loop over age
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, c);
-        // Loop over infection levels.  if age = 0, no infecteds.
+        // Loop over infection levels. Skip age 0 -- no infections
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
-            // Get proportion of susceptibles at this age.
-            double weight = susceptibles[xAge] / (numSusceptibles - susceptibles[0]);
-            // Get proportion of new infecteds at this bucket & age.
+            // Get normalized density of susceptibles at this age.
+            double weight = susceptibles[xAge] / numSusceptibles;
+            // Get density of new infecteds at this bucket & age.
             double infectedVal = weight * gammaVal * numInfecteds;
             totalInfected += infectedVal * deltaArea;
             infecteds.setIndex(xAge, xLoad,  infectedVal);
