@@ -46,7 +46,7 @@ void setInitialInfecteds(const State& state) {
     double c = state.compParms.intrinsicGrowthRate;
     std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
     size_t numSusceptibles = state.modParms.initialSusceptiblePop;
-    size_t numInfecteds = state.intParms.numInfectionLoadBuckets;
+    size_t numInfecteds = state.modParms.initialInfectedPop;
     double totalInfected = 0.0;
     // loop over ages
     for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
