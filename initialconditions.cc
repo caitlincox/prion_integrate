@@ -22,9 +22,16 @@ void setStartingDistribution(const State& state) {
     assert(dist.size() == state.compParms.ageSize);
     double lambda = state.compParms.lambda;
     assert(state.compParms.lambda != 0.0);
+    double totalSusPop = 0.0;
     for (int i = 0; i < state.compParms.ageSize; i++) {
         dist[i] = weibullOfAge(state.compParms.lambda, state.modParms.kappa,
                 state.intParms.deltaTime * i) * state.modParms.initialSusceptiblePop;
+        totalSusPop += dist[i] * state.intParms.deltaTime;
+    }
+    // Normalize it.
+    double normalizer = state.modParms.initialSusceptiblePop/totalSusPop;
+    for (int i = 0; i < state.compParms.ageSize; i++) {
+        dist[i] *= normalizer;
     }
 }
 
@@ -39,7 +46,7 @@ void setStartingDistribution(const State& state) {
 //}
 
 double weibullOfAge(double lambda, double kappa, double age){
-    double value = exp(-pow(age * lambda, kappa));
+    return exp(-pow(age * lambda, kappa));
 }
 
 //We put some infected density initially. To avoid discontinuities, it's added
