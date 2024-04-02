@@ -21,9 +21,9 @@ int main() {
     auto births = newReplacementBirthScheme();
     auto deaths = std::make_unique<Death>(*state);
     auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state), true);
-    state->writeInfectedsPGM("initial_infecteds.pgm");
-    state->writeSusceptiblesPBM("initial_suseptibles.pbm");
-    void writeSusceptiblesPBM(const std::string& filename);
+    const State& state_ref = integrator.getState();
+    state_ref.writeInfectedsPGM("initial_infecteds.pgm");
+    state_ref.writeSusceptiblesPBM("initial_suseptibles.pbm");
     integrator.run();
     return 0;
 }

@@ -46,8 +46,8 @@ struct ComputedParams {
     double aveLoad = 0.0;
     double ageDeaths = 0.0;
     double infectionDeaths = 0.0;
-    double maxInfectedsBucketPop = 0.0;
-    double maxSusceptiblesBucketPop = 0.0;
+    double maxInfectedsPopDensity = 0.0;
+    double maxSusceptiblesPopDensity = 0.0;
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate = 0.0;
     double firstBucketLogLoad = 0.0;
@@ -67,9 +67,9 @@ struct State {
     // After taking a time step, update computed parameters such as popSize.
     void updateComputedParameters();
     // Write a portable greymap (.pgm) image from the infecteds.
-    void writeInfectedsPGM(const std::string& filename);
+    void writeInfectedsPGM(const std::string& filename) const;
     // Write a portable bitmap (.pbm) graph for the suseptibles.
-    void writeSusceptiblesPBM(const std::string& filename);
+    void writeSusceptiblesPBM(const std::string& filename) const;
 
     std::unique_ptr<Susceptibles> susceptibles;
     std::unique_ptr<Infecteds> infecteds;

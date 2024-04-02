@@ -18,6 +18,9 @@ public:
         std::unique_ptr<State> state,
         bool expectConstantPop);
     void run();
+    const State& getState() {
+        return *state_.get();
+    }
 
 private:
     // Update state_ for the current time step.

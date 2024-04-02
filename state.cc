@@ -46,7 +46,7 @@ void State::initializeComputedParameters() {
     auto& columnLoads = *compParms.columnLoads;
     // First bucket is e^w.
     columnLoads[0] = exp(compParms.firstBucketLogLoad);
-    for (size_t i = 1; i < intParms.numInfectionLoadBuckets; i++) {
+    for (size_t i = 0; i < intParms.numInfectionLoadBuckets; i++) {
         columnLoads[i] = exp(compParms.firstBucketLogLoad + i * intParms.deltaTime *
             compParms.intrinsicGrowthRate);
     }
@@ -72,29 +72,31 @@ void State::updateComputedParameters() {
     compParms.susceptiblePop = 0.0;
     compParms.transferRate = 0.0;
     compParms.aveLoad = 0.0;
-    compParms.maxInfectedsBucketPop = 0.0;
-    compParms.maxSusceptiblesBucketPop = 0.0;
+    compParms.maxInfectedsPopDensity = 0.0;
+    compParms.maxSusceptiblesPopDensity = 0.0;
+    double dt = intParms.deltaTime;
+    double it = compParms.deltaLogInfection;
     double totalLoad = 0.0;
     auto& columnLoads = *compParms.columnLoads;
     auto& susceptiblesVec = *susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < maxAgeStep; xAge++) {
-        double popAtAge = susceptiblesVec[xAge];
-        compParms.susceptiblePop += popAtAge;
-        if (popAtAge > compParms.maxSusceptiblesBucketPop) {
-            compParms.maxSusceptiblesBucketPop = popAtAge;
+        double popDensityAtAge = susceptiblesVec[xAge];
+        compParms.susceptiblePop += popDensityAtAge * dt;
+        if (popDensityAtAge > compParms.maxSusceptiblesPopDensity) {
+            compParms.maxSusceptiblesPopDensity = popDensityAtAge;
         }
-        for (size_t xLoad = 1; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
-            double popAtLoad = infecteds->getIndex(xAge, xLoad);
-            if (popAtLoad > compParms.maxInfectedsBucketPop) {
-                compParms.maxInfectedsBucketPop = popAtLoad;
+        for (size_t xLoad = 0; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
+            double popDensityAtLoad = infecteds->getIndex(xAge, xLoad);
+            if (popDensityAtLoad > compParms.maxInfectedsPopDensity) {
+                compParms.maxInfectedsPopDensity = popDensityAtLoad;
             }
-            compParms.infectedPop += popAtLoad;
-            compParms.transferRate += modParms.beta * columnLoads[xLoad] * popAtLoad;
-            totalLoad += columnLoads[xLoad] * popAtLoad;
+            double infectedPopAtLoad = popDensityAtLoad * dt * it;
+            compParms.infectedPop += infectedPopAtLoad;
+            compParms.transferRate += modParms.beta * columnLoads[xLoad] * popDensityAtLoad;
+            totalLoad += columnLoads[xLoad] * infectedPopAtLoad;
         }
     }
     compParms.popSize = compParms.susceptiblePop + compParms.infectedPop;
-// FIX ME: Should this be popSize instead?
     compParms.aveLoad = totalLoad / compParms.infectedPop;
 }
 
@@ -130,7 +132,7 @@ void State::timeStep() {
     }
 }
 
-void State::writeInfectedsPGM(const std::string& filename) {
+void State::writeInfectedsPGM(const std::string& filename) const {
     size_t rows = intParms.numInfectionLoadBuckets;
     size_t columns = compParms.ageSize;
     FILE* file = fopen(filename.c_str(), "w");
@@ -143,21 +145,21 @@ void State::writeInfectedsPGM(const std::string& filename) {
             }
             firstTime = false;
             double popAtLoad = infecteds->getIndex(xAge, rows - 1 - xLoad);
-            fprintf(file, "%u", popAtLoad * 255 / compParms.maxInfectedsBucketPop);
+            fprintf(file, "%u", popAtLoad * 255 / compParms.maxInfectedsPopDensity);
         }
         fputc('\n', file);
     }
     fclose(file);
 }
 
-void State::writeSusceptiblesPBM(const std::string& filename) {
+void State::writeSusceptiblesPBM(const std::string& filename) const {
     size_t columns = compParms.ageSize;
     size_t rows = columns / 3;
     bool* bitmap = new bool[rows * columns];
     std::vector<double>& dist = *susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < columns; xAge++) {
         double popAtAge = dist[xAge];
-        size_t rowIndex = (columns - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesBucketPop);
+        size_t rowIndex = (columns - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesPopDensity);
         bitmap[rowIndex * columns + xAge] = true;
     }
     FILE* file = fopen(filename.c_str(), "w");
