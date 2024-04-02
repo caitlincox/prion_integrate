@@ -24,6 +24,7 @@ int main() {
     const State& state_ref = integrator.getState();
     state_ref.writeInfectedsPGM("initial_infecteds.pgm");
     state_ref.writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
+    state_ref.writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
     integrator.run();
     return 0;
 }

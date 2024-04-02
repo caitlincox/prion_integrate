@@ -1,5 +1,6 @@
 #include "state.h"
 
+#include <cassert>
 #include <cmath>
 #include <cstring>
 #include <cstdio> 
@@ -119,13 +120,13 @@ void State::timeStep() {
     // Move all susceptiblees to one higher age index.
     std::vector<double>& susVec = *susceptibles->getCurrentState();
     double* susPtr = &susVec[0];
-    memmove(susPtr + 1, susPtr, xMaxAge);
+    memmove(susPtr + 1, susPtr, xMaxAge * sizeof(double));
     *susPtr = 0.0;  // Set births to 0.
     // Move all the infectes both by a deltaTime and increase infection.
     // This simply moves data by 1 in both age and infection dimensions.
     double* infectedPtr = infecteds->getInfectionRow(0);
     size_t numMoving = xMaxAge * intParms.numInfectionLoadBuckets - 1;
-    memmove(infectedPtr + intParms.numInfectionLoadBuckets + 1, infectedPtr, numMoving);
+    memmove(infectedPtr + intParms.numInfectionLoadBuckets + 1, infectedPtr, numMoving * sizeof(double));
     // Zero out the min infection buckets.
     for (size_t xAge = 0; xAge < compParms.ageSize; xAge++) {
         infecteds->setIndex(xAge, 0, 0.0);
@@ -155,10 +156,11 @@ void State::writeInfectedsPGM(const std::string& filename) const {
 namespace {
 
 void setBit(bool* bitmap, size_t rows, size_t columns, size_t x, size_t y, uint32_t width) {
+    assert(x < columns && y < rows);
     size_t left = x > width? x - width : 0;
     size_t bottom = y > width? y - width : 0;
-    size_t right = x + width < columns? x + width : columns;
-    size_t top = y + width < rows? y + width : rows;
+    size_t right = x + width < columns? x + width : columns - 1;
+    size_t top = y + width < rows? y + width : rows - 1;
     for (size_t xp = left; xp <= right; xp++) {
         for (size_t yp = bottom; yp <= top; yp++) {
             bitmap[yp * columns + xp] = true;
@@ -175,7 +177,7 @@ void State::writeSusceptiblesPBM(const std::string& filename, uint32_t width) co
     std::vector<double>& dist = *susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < columns; xAge++) {
         double popAtAge = dist[xAge];
-        size_t rowIndex = (columns - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesPopDensity);
+        size_t rowIndex = (rows - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesPopDensity);
         setBit(bitmap, rows, columns, xAge, rowIndex, width);
     }
     FILE* file = fopen(filename.c_str(), "w");
