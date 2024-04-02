@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-double intrinsicGrowthRate(double aveLifespan, double aveInitInfectionLoad);
+double intrinsicGrowthRate(const ModelParams& modParms);
 double weibullOfAge(double weibullLambda, double weibullKappa, double age);
 void setStartingDistribution(const State& state);
 void setInitialInfecteds(const State& state);

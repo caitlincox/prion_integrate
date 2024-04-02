@@ -3,8 +3,8 @@
 #include <cassert>
 #include <cmath>
 
-double intrinsicGrowthRate(double aveLifespan, double aveInitInfectionLoad) {
-    return log(1/aveInitInfectionLoad)/aveLifespan;
+double intrinsicGrowthRate(const ModelParams& modParms) {
+    return log(1/modParms.aveInitInfectionLoad)/modParms.aveInfectiousPeriod;
 }
 
 // TODO: which paper?
