@@ -174,6 +174,7 @@ void State::writeSusceptiblesPBM(const std::string& filename, uint32_t width) co
     size_t columns = compParms.ageSize;
     size_t rows = columns / 3;
     bool* bitmap = new bool[rows * columns];
+    memset(bitmap, '\0', rows * columns * sizeof(bool));
     std::vector<double>& dist = *susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < columns; xAge++) {
         double popAtAge = dist[xAge];
