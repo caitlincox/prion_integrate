@@ -46,7 +46,7 @@ totalSusPop += dist[i] * state.intParms.deltaTime;
 //}
 
 double weibullOfAge(double lambda, double kappa, double age){
-    double value = exp(-pow(age * lambda, kappa));
+    return exp(-pow(age * lambda, kappa));
 }
 
 //TO DO: 
