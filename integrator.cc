@@ -23,7 +23,7 @@ void Integrator::run() {
            time += state_->intParms.deltaTime) {
 // temp
 state_->writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
-// state_->writeInfectedsPGM("initial_infecteds.pgm");
+state_->writeInfectedsPGM("initial_infecteds.pgm");
         runTests(*state_, expectConstantPop_);
         update();
     }
