@@ -47,6 +47,7 @@ struct ComputedParams {
     double transferRate = 0.0;
     double aveLoad = 0.0;
     double ageDeaths = 0.0;
+    double naturalDeaths = 0.0;
     double infectionDeaths = 0.0;
     double maxInfectedsPopDensity = 0.0;
     double maxSusceptiblesPopDensity = 0.0;

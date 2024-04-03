@@ -38,7 +38,8 @@ class BirthRateBirthScheme : public BirthScheme {
 
 public:
     double calculateBirth(const State& state) override {
-      return state.compParms.ageDeaths + state.compParms.infectionDeaths;
+      return state.compParms.ageDeaths + state.compParms.infectionDeaths +
+             state.compParms.naturalDeaths;;
     }
 
     //getters and setters

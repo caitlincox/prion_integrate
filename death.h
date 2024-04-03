@@ -7,6 +7,8 @@ class Death {
 public:
     Death(const State& state);
     double weibullDeathRate(double age);
+    // Kill off population according to death rate for all ages.
+    void kill(State& state);
 
     //getters and setters
     double getSurvivalKappa() {return weibullSurvivorshipKappa_;}
