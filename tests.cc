@@ -18,7 +18,7 @@ void verifySusceptibleTotal(const State& state, double expectedTotal) {
 void verifyInfectedTotal(const State& state, double expectedTotal) {
     double total = 0.0;
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
-        for (size_t xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
+        for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
             double popDensityAtLoad = state.infecteds->getIndex(xAge, xLoad);
             if (xAge == 0) {
                 assert(popDensityAtLoad == 0.0);

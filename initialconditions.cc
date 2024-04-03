@@ -63,7 +63,7 @@ void setInitialInfecteds(const State& state) {
     double deltaArea = state.intParms.deltaTime * deltaInfection;
 
     // loop over age
-    for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
+    for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
@@ -82,7 +82,7 @@ void setInitialInfecteds(const State& state) {
     // Normalize the initial infections to get the correct total infected population.
     double normalizer = state.modParms.initialInfectedPop / totalInfected;
     printf("Initial infected normalizer = %f\n", normalizer);
-    for(int xLoad = 0; xLoad < state.intParms.numInfectionLoadBuckets; xLoad++) {
+    for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             infecteds.setIndex(xAge, xLoad,  normalizer * infecteds.getIndex(xAge, xLoad));
         }

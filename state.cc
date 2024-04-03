@@ -23,6 +23,7 @@ void State::initializeComputedParameters() {
     compParms.intrinsicGrowthRate = intrinsicGrowthRate(modParms);
     compParms.deltaLogInfection = compParms.intrinsicGrowthRate * intParms.deltaTime;
     compParms.ageSize = modParms.maxAge / intParms.deltaTime;
+    compParms.infectionSize = compParms.ageSize * intParms.infectionSizeToAgesSizeRatio;
     compParms.lambda = findLambda(modParms.aveLifespan, modParms.kappa);
     setStartingDistribution(*this);
     // We represent load buckets on a natural log scale.  This model throws
@@ -40,14 +41,14 @@ void State::initializeComputedParameters() {
     // we have the minimum represented load of e^w.  The bucket index with
     // infection load == 1 is not represented, as the animals would be dead.
     compParms.firstBucketLogLoad = -compParms.intrinsicGrowthRate *
-        intParms.deltaTime * intParms.numInfectionLoadBuckets;
+        intParms.deltaTime * compParms.infectionSize;
     compParms.columnLoads = std::make_unique<std::vector<double>>();
-    compParms.columnLoads->resize(intParms.numInfectionLoadBuckets);
+    compParms.columnLoads->resize(compParms.infectionSize);
     // Compute the infection load for each bucket.
     auto& columnLoads = *compParms.columnLoads;
     // First bucket is e^w.
     columnLoads[0] = exp(compParms.firstBucketLogLoad);
-    for (size_t i = 0; i < intParms.numInfectionLoadBuckets; i++) {
+    for (size_t i = 0; i < compParms.infectionSize; i++) {
         columnLoads[i] = exp(compParms.firstBucketLogLoad + i * intParms.deltaTime *
             compParms.intrinsicGrowthRate);
     }
@@ -55,8 +56,9 @@ void State::initializeComputedParameters() {
 
 State::State(IntegrationParams integrationParams, ModelParams modelParams) {
     size_t ageSize = modelParams.maxAge / integrationParams.deltaTime;
+    size_t infectionSize = ageSize * integrationParams.infectionSizeToAgesSizeRatio;
     susceptibles = std::make_unique<Susceptibles>(ageSize);
-    infecteds = std::make_unique<Infecteds>(ageSize, integrationParams.numInfectionLoadBuckets);
+    infecteds = std::make_unique<Infecteds>(ageSize, infectionSize);
     intParms = integrationParams;
     modParms = modelParams;
     initializeComputedParameters();
@@ -86,7 +88,7 @@ void State::updateComputedParameters() {
         if (popDensityAtAge > compParms.maxSusceptiblesPopDensity) {
             compParms.maxSusceptiblesPopDensity = popDensityAtAge;
         }
-        for (size_t xLoad = 0; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
+        for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
             double popDensityAtLoad = infecteds->getIndex(xAge, xLoad);
             if (popDensityAtLoad > compParms.maxInfectedsPopDensity) {
                 compParms.maxInfectedsPopDensity = popDensityAtLoad;
@@ -105,12 +107,12 @@ void State::timeStep() {
     // Compute deaths before the memmove.
     compParms.ageDeaths = 0.0;
     size_t xMaxAge = compParms.ageSize - 1;
-    for (size_t xLoad = 0; xLoad < intParms.numInfectionLoadBuckets; xLoad++) {
+    for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
         compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad);
     }
     // Compute deaths from infection.
     compParms.infectionDeaths = 0.0;
-    size_t xMaxLoad = intParms.numInfectionLoadBuckets - 1;
+    size_t xMaxLoad = compParms.infectionSize - 1;
     // The special case of the bucket that would die both from age and
     // infection is added to the age deaths.
     for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
@@ -125,8 +127,8 @@ void State::timeStep() {
     // Move all the infectes both by a deltaTime and increase infection.
     // This simply moves data by 1 in both age and infection dimensions.
     double* infectedPtr = infecteds->getInfectionRow(0);
-    size_t numMoving = xMaxAge * intParms.numInfectionLoadBuckets - 1;
-    memmove(infectedPtr + intParms.numInfectionLoadBuckets + 1, infectedPtr, numMoving * sizeof(double));
+    size_t numMoving = xMaxAge * compParms.infectionSize - 1;
+    memmove(infectedPtr + compParms.infectionSize + 1, infectedPtr, numMoving * sizeof(double));
     // Zero out the min infection buckets.
     for (size_t xAge = 0; xAge < compParms.ageSize; xAge++) {
         infecteds->setIndex(xAge, 0, 0.0);
@@ -134,7 +136,7 @@ void State::timeStep() {
 }
 
 void State::writeInfectedsPGM(const std::string& filename) const {
-    size_t rows = intParms.numInfectionLoadBuckets;
+    size_t rows = compParms.infectionSize;
     size_t columns = compParms.ageSize;
     FILE* file = fopen(filename.c_str(), "w");
     fprintf(file, "P2\n%u %u\n255\n", columns, rows);

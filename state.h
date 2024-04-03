@@ -11,8 +11,8 @@
 // Integration parameters.  All times are in years.
 struct IntegrationParams {
     double deltaTime;
-    size_t numInfectionLoadBuckets; 
     double totalTime;
+    double infectionSizeToAgesSizeRatio;
 };
 
 //Store human-readable model parameters
@@ -37,8 +37,9 @@ struct ComputedParams {
     double deltaLogInfection;
     // Currently computed in death.cc (unimplemented).
     double lambda = 0.0;
-    // Parameters computed per step.
     size_t ageSize = 0;
+    size_t infectionSize = 0;; 
+    // Parameters computed per step.
     double totalInfection = 0.0;
     double infectedPop = 0.0;
     double susceptiblePop = 0.0;

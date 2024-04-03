@@ -3,9 +3,12 @@
 
 int main() {
     IntegrationParams integrationParams = {
-        .deltaTime = 0.01,
-        .numInfectionLoadBuckets = 100,
+        .deltaTime = 0.1,
         .totalTime = 15.0,
+        // For now, use ageSize == infectionSize.  There is an argument for
+        // 2*ageSize or more, because infected animals can spread disease even
+        // if they will die of old age.
+        .infectionSizeToAgesSizeRatio = 1.0,
     };
     ModelParams modelParams = {
         .maxAge = 10.0,
@@ -25,6 +28,8 @@ int main() {
     const State& state_ref = integrator.getState();
     state_ref.writeInfectedsPGM("initial_infecteds.pgm");
     state_ref.writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
+// temp
+return 0;
     integrator.run();
     return 0;
 }
