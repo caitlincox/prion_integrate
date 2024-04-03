@@ -136,6 +136,8 @@ void State::timeStep() {
 }
 
 // See https://en.wikipedia.org/wiki/Netpbm for a description of this simple format.
+// To view the greymap on linux, use 'gimp <filename>', where mfilename must end
+// in .pgm.
 void State::writeInfectedsPGM(const std::string& filename) const {
     size_t rows = compParms.infectionSize;
     size_t columns = compParms.ageSize;
@@ -158,7 +160,6 @@ void State::writeInfectedsPGM(const std::string& filename) const {
 
 namespace {
 
-// See https://en.wikipedia.org/wiki/Netpbm for a description of this simple format.
 void setBit(bool* bitmap, size_t rows, size_t columns, size_t x, size_t y, uint32_t width) {
     assert(x < columns && y < rows);
     size_t left = x > width? x - width : 0;
@@ -174,6 +175,9 @@ void setBit(bool* bitmap, size_t rows, size_t columns, size_t x, size_t y, uint3
 
 }  // namespace
 
+// See https://en.wikipedia.org/wiki/Netpbm for a description of this simple format.
+// To view the bitmap on linux, use 'gimp <filename>', where mfilename must end
+// in .pbm.
 void State::writeSusceptiblesPBM(const std::string& filename, uint32_t width) const {
     size_t columns = compParms.ageSize;
     size_t rows = columns / 3;
