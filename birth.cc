@@ -38,8 +38,7 @@ class BirthRateBirthScheme : public BirthScheme {
 
 public:
     double calculateBirth(const State& state) override {
-      printf("Not implemmented");
-      return 0.0;
+      return state.compParms.ageDeaths + state.compParms.infectionDeaths;
     }
 
     //getters and setters

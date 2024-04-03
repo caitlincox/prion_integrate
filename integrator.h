@@ -25,6 +25,8 @@ public:
 private:
     // Update state_ for the current time step.
     void update();
+    // Update the state to reflect the state after a deltaTime step.
+    void timeStep();
 
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;

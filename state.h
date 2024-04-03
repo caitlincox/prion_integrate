@@ -64,8 +64,6 @@ struct ComputedParams {
 // read from and write to it directly.
 struct State {
     State(IntegrationParams integrationParams, ModelParams modelParams);
-    // Update the state to reflect the state after a deltaTime step.
-    void timeStep();
     // After taking a time step, update computed parameters such as popSize.
     void updateComputedParameters();
     // Write a portable greymap (.pgm) image from the infecteds.
