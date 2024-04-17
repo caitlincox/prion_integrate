@@ -44,7 +44,7 @@ void Integrator::timeStep() {
     compParms.ageDeaths = susVec[compParms.ageSize - 1];
     size_t xMaxAge = compParms.ageSize - 1;
     for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
-        compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad);
+        compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad); //NEED TO SCALE BY DELTA T - NOT DONE
     }
     // Compute deaths from infection.
     compParms.infectionDeaths = 0.0;
@@ -58,11 +58,11 @@ void Integrator::timeStep() {
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
     // time step below.
-
+    deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
     double births = births_->calculateBirth(*state_);
     // Now kill off population due to natural deaths.
-    deaths_->kill(*state_);
+    //deaths_->kill(*state_);
     // Now advance time by deltaTime.
     // Move all susceptiblees to one higher age index.
     double* susPtr = &susVec[0];

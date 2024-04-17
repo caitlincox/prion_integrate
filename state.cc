@@ -129,6 +129,9 @@ void State::writeInfectedsPGM(const std::string& filename) const {
 namespace {
 
 void setBit(bool* bitmap, size_t rows, size_t columns, size_t x, size_t y, uint32_t width) {
+    if(!(x < columns && y < rows)){
+        bool flag = true;
+    }
     assert(x < columns && y < rows);
     size_t left = x > width? x - width : 0;
     size_t bottom = y > width? y - width : 0;
@@ -154,7 +157,7 @@ void State::writeSusceptiblesPBM(const std::string& filename, uint32_t width) co
     std::vector<double>& dist = *susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < columns; xAge++) {
         double popAtAge = dist[xAge];
-        size_t rowIndex = (rows - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesPopDensity);
+        size_t rowIndex = (rows - 1) * (1.0 - popAtAge / compParms.maxSusceptiblesPopDensity); 
         setBit(bitmap, rows, columns, xAge, rowIndex, width);
     }
     FILE* file = fopen(filename.c_str(), "w");

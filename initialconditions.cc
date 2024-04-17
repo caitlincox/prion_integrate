@@ -63,7 +63,6 @@ void setInitialInfecteds(const State& state) {
     double deltaInfection = state.compParms.deltaLogInfection;
     double deltaArea = state.intParms.deltaTime * deltaInfection;
 
-    // loop over age
     for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
