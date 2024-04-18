@@ -3,7 +3,7 @@
 
 int main() {
     IntegrationParams integrationParams = {
-        .deltaTime = 0.02,
+        .deltaTime = 0.02, //0.02
         .totalTime = 15.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
@@ -11,9 +11,9 @@ int main() {
         .infectionSizeToAgesSizeRatio = 1.0,
     };
     ModelParams modelParams = {
-        .maxAge = 10.0,
-        .aveLifespan = 4.0,
-        .aveInfectiousPeriod = 2.0,
+        .maxAge = 10.0, //10.0
+        .aveLifespan = 4.0, //4.0
+        .aveInfectiousPeriod = 2.0, //2.0
         .aveInitInfectionLoad = 0.1,
         .beta = 0.04,
         .kappa = 2.0,

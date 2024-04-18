@@ -19,6 +19,9 @@ public:
 private:
     double weibullSurvivorshipLambda_;
     double weibullSurvivorshipKappa_;
+
+    double killSusceptibles(double ageInYears, State& state, size_t index);
+    double killInfecteds(double ageInYears, State& state, size_t index);
 };
 
 #endif
