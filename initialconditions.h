@@ -7,8 +7,10 @@
 #include <vector>
 
 double intrinsicGrowthRate(const ModelParams& modParms);
-double weibullOfAge(double weibullLambda, double weibullKappa, double age);
+double weibullOfAge(double age, double weibullLambda, double weibullKappa);
 void setStartingDistribution(const State& state);
 void setInitialInfecteds(const State& state);
+double gammaDist(double infectionLoad, double aveInitInfectionLoad, double shapeParam);
+
 
 #endif

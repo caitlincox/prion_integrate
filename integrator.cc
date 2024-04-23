@@ -58,11 +58,13 @@ void Integrator::timeStep() {
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
     // time step below.
+
+    // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
     double births = births_->calculateBirth(*state_);
-    // Now kill off population due to natural deaths.
     //deaths_->kill(*state_);
+    
     // Now advance time by deltaTime.
     // Move all susceptiblees to one higher age index.
     double* susPtr = &susVec[0];

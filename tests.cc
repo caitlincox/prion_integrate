@@ -1,4 +1,5 @@
 #include "tests.h"
+#include "initialconditions.h"
 
 #include <cassert>
 
@@ -37,3 +38,22 @@ void runTests(const State& state, bool expectConstantPop) {
         assertAproxEqual(expectedPop, actualPop);
     }
 }
+
+//Tests whether a distribution integrates to 1
+void testDistributionMeasure(double (*dist) (double, double, double), double param1, 
+                      double param2, double deltaX, double xMin, double xMax) {
+    int numSlices = (xMax - xMin) / deltaX;
+    double total = 0;
+    double x = xMin;
+    for(int i = 0; i < numSlices; i++){
+        total += dist(x, param1, param2) * deltaX;
+        x += deltaX;
+    }
+    assertAproxEqual(total, 1.0);
+}
+
+
+void runInitTests(){
+    testDistributionMeasure(&weibullOfAge, 0.2216, 2, 0.02, 0, 10);
+    testDistributionMeasure(&gammaDist, 0.10, 5, 0.001, 0, 1);
+};

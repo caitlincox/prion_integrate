@@ -1,7 +1,12 @@
 #include "death.h"
 #include "integrator.h"
+#include "tests.h"
 
 int main() {
+     // TEMP TESTS
+    runInitTests();
+    //
+    
     IntegrationParams integrationParams = {
         .deltaTime = 0.02, //0.02
         .totalTime = 15.0,
