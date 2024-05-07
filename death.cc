@@ -26,9 +26,9 @@ void Death::kill(State& state) {
         susceptibleDeaths += killSusceptibles(ageInYears, state, ageIndex); //removes susceptible density & returns amount subtracted
         infectedDeaths += killInfecteds(ageInYears, state, ageIndex);
     }
-    state.compParms.naturalDeaths = susceptibleDeaths + infectedDeaths;
-    double dedSus = susceptibleDeaths * state.intParms.deltaTime;
-    double dedInf = infectedDeaths * state.intParms.deltaTime;
+    state.compParms.naturalDeaths = (susceptibleDeaths + infectedDeaths) * state.intParms.deltaTime;
+    //double dedSus = susceptibleDeaths * state.intParms.deltaTime;
+    //double dedInf = infectedDeaths * state.intParms.deltaTime;
 }
 
 //Subtract susceptible density for an age in accordance with deathrate. Returns amount subtracted.
@@ -49,12 +49,8 @@ double Death::killInfecteds(double ageInYears, State& state, size_t ageIndex){
     for(size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize; infectionIndex++){ 
         double currentInfecteds = state.infecteds->getIndex(ageIndex, infectionIndex);
         double infectedsKilled = currentInfecteds * infDeathRate;
+        deltaInfection = state.compParms.deltaInfectionForLoad->at(infectionIndex);
         state.infecteds->setIndex(ageIndex, infectionIndex, currentInfecteds - infectedsKilled);
-        if(infectionIndex == state.compParms.infectionSize - 1) { //to prevent indexing out of vector
-            deltaInfection = 1 - (*state.compParms.columnLoads)[infectionIndex]; //Need non log scale
-        }else {
-            deltaInfection = (*state.compParms.columnLoads)[infectionIndex + 1] - (*state.compParms.columnLoads)[infectionIndex];
-        }
         infDeaths += infectedsKilled * deltaInfection; //we integrate out infection to find density at age
     }
     

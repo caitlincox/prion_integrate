@@ -52,6 +52,14 @@ void State::initializeComputedParameters() {
         columnLoads[i] = exp(compParms.firstBucketLogLoad + i * intParms.deltaTime *
             compParms.intrinsicGrowthRate);
     }
+    //Now create a delta load vector as well
+    compParms.deltaInfectionForLoad = std::make_unique<std::vector<double>>();
+    compParms.deltaInfectionForLoad->resize(compParms.infectionSize);
+    auto& deltaInfection = *compParms.deltaInfectionForLoad;
+    deltaInfection[compParms.infectionSize - 1] = 1 - columnLoads[compParms.infectionSize - 1];
+    for (size_t i = 0; i < compParms.infectionSize - 1; i++) {
+        deltaInfection[i] = columnLoads[i + 1] - columnLoads[i];
+    }
 }
 
 State::State(IntegrationParams integrationParams, ModelParams modelParams) {

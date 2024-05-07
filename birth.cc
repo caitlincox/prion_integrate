@@ -24,8 +24,9 @@ std::unique_ptr<BirthScheme> newConstantBirthScheme(double birthConstant) {
 class ReplacementBirthScheme : public BirthScheme {
 
 public:
+    //We set the birth pt such as to force our left Riemann sum integration to preserve the total.
     double calculateBirth(const State& state) override {
-        return state.compParms.ageDeaths + state.compParms.infectionDeaths + state.compParms.naturalDeaths;
+        return (state.compParms.ageDeaths + state.compParms.infectionDeaths + state.compParms.naturalDeaths) / state.intParms.deltaTime;
     }
 };
 

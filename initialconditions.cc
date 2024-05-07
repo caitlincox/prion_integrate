@@ -28,23 +28,15 @@ void setStartingDistribution(const State& state) {
          * state.modParms.initialSusceptiblePop;
         totalSusPop += dist[i] * state.intParms.deltaTime;
     }
-    // Normalize it.
+    // Normalize it. Weibull of age is a survival fcn, so it won't integrate to 1.
     double normalizer = state.modParms.initialSusceptiblePop/totalSusPop;
     for (int i = 0; i < state.compParms.ageSize; i++) {
         dist[i] *= normalizer;
     }
 }
 
-//The way Stringer et al. did initial distribution was using a steady state Weibull. 
-//This is just an implementation of the Weibull distribution density function.
-//double weibullOfAge(double lambda, double kappa, double age) {
- //   double ratio1 = kappa/lambda;
- //   double ratio2 = age/lambda;
- //   double firstComponent = ratio1 * pow(ratio2, kappa - 1); //breaking the calculation into parts
- //   double secondComponent = -pow(ratio2,kappa);
- //   return firstComponent * exp(secondComponent);
-//}
-
+//This is a Weibull survival function (1 - CDF of Weibull). It's the steady-state distribution
+//if we assume death rate as a fcn of age is Weibull distributed.
 double weibullOfAge(double age, double lambda, double kappa){
     return exp(-pow(age * lambda, kappa));
 }
@@ -64,14 +56,8 @@ void setInitialInfecteds(const State& state) {
     //double deltaArea = state.intParms.deltaTime * deltaInfection; //wrong bc transformation not measure preserving
     for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in this infection level
-        // TODO: The gamma distribution function needs work: It needs more
-        // parameters to cause the total infecteds to add to numInfecteds.
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
-        if(xLoad == state.compParms.infectionSize - 1) {
-            deltaArea = state.intParms.deltaTime * (1 - loadVec[xLoad]);
-        }else {
-            deltaArea = state.intParms.deltaTime * (loadVec[xLoad + 1] - loadVec[xLoad]);
-            }
+        deltaArea = state.intParms.deltaTime * state.compParms.deltaInfectionForLoad->at(xLoad);
         // Loop over infection levels. Skip age 0 -- no infections
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.

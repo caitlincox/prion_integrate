@@ -44,16 +44,18 @@ void Integrator::timeStep() {
     compParms.ageDeaths = susVec[compParms.ageSize - 1];
     size_t xMaxAge = compParms.ageSize - 1;
     for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
-        compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad); //NEED TO SCALE BY DELTA T - NOT DONE
+        compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad) * compParms.deltaInfectionForLoad->at(xLoad);
     }
+    compParms.ageDeaths *= state_->intParms.deltaTime; //Scale by delta time
     // Compute deaths from infection.
     compParms.infectionDeaths = 0.0;
     size_t xMaxLoad = compParms.infectionSize - 1;
     // The special case of the bucket that would die both from age and
     // infection is added to the age deaths.
     for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
-        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad); //this is WRONG lmao
+        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad) * compParms.deltaInfectionForLoad->at(xMaxLoad); //this is WRONG lmao.. possibly not see above
     }
+    compParms.infectionDeaths *= state_->intParms.deltaTime; //scale by delta time
 
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
