@@ -50,9 +50,9 @@ double Death::killInfecteds(double ageInYears, State& state, size_t ageIndex){
         double currentInfecteds = state.infecteds->getIndex(ageIndex, infectionIndex);
         double infectedsKilled = currentInfecteds * infDeathRate;
         state.infecteds->setIndex(ageIndex, infectionIndex, currentInfecteds - infectedsKilled);
-        if(infectionIndex == state.compParms.infectionSize - 1){ //to prevent indexing out of vector
+        if(infectionIndex == state.compParms.infectionSize - 1) { //to prevent indexing out of vector
             deltaInfection = 1 - (*state.compParms.columnLoads)[infectionIndex]; //Need non log scale
-        }else{
+        }else {
             deltaInfection = (*state.compParms.columnLoads)[infectionIndex + 1] - (*state.compParms.columnLoads)[infectionIndex];
         }
         infDeaths += infectedsKilled * deltaInfection; //we integrate out infection to find density at age

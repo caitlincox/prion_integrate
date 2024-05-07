@@ -52,18 +52,20 @@ void Integrator::timeStep() {
     // The special case of the bucket that would die both from age and
     // infection is added to the age deaths.
     for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
-        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad);
+        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad); //this is WRONG lmao
     }
 
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
     // time step below.
-
+    Infecteds newInfecteds = Infecteds(infecteds->getAgeSize(), infecteds->getInfectionSize());
+    
+    
     // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
     double births = births_->calculateBirth(*state_);
-    //deaths_->kill(*state_);
+    //deaths_->kill(*state_); goes here if not replacement
     
     // Now advance time by deltaTime.
     // Move all susceptiblees to one higher age index.

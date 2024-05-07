@@ -22,7 +22,7 @@ void setStartingDistribution(const State& state) {
     assert(dist.size() == state.compParms.ageSize);
     double lambda = state.compParms.lambda;
     assert(state.compParms.lambda != 0.0);
-double totalSusPop = 0.0;
+    double totalSusPop = 0.0;
     for (int i = 0; i < state.compParms.ageSize; i++) {
         dist[i] = weibullOfAge(state.intParms.deltaTime * i, state.compParms.lambda, state.modParms.kappa)
          * state.modParms.initialSusceptiblePop;
@@ -53,22 +53,25 @@ double weibullOfAge(double age, double lambda, double kappa){
 //We put some infected density initially. To avoid discontinuities, it's added
 //in the same way as the transfer function from susceptibles
 void setInitialInfecteds(const State& state) {
+    double deltaArea;
+    //Shorthand variables to make code less verbose
     auto& infecteds = *state.infecteds;
-    std::vector<double>& loadVec = *state.compParms.columnLoads;
-    double shapeParam = state.modParms.gammaShapeParam;
-    std::vector<double>& susceptibles = *state.susceptibles->getCurrentState();
-    size_t numSusceptibles = state.modParms.initialSusceptiblePop;
-    size_t numInfecteds = state.modParms.initialInfectedPop;
+    std::vector<double>& loadVec = *state.compParms.columnLoads, susceptibles = *state.susceptibles->getCurrentState();
+    double shapeParam = state.modParms.gammaShapeParam, numSusceptibles = state.modParms.initialSusceptiblePop,
+        numInfecteds = state.modParms.initialInfectedPop; 
+    //Counter for debugging
     double totalInfected = 0.0;
-    double deltaInfection = state.compParms.deltaLogInfection;
-    double deltaArea = state.intParms.deltaTime * deltaInfection;
-
+    //double deltaArea = state.intParms.deltaTime * deltaInfection; //wrong bc transformation not measure preserving
     for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
-
+        if(xLoad == state.compParms.infectionSize - 1) {
+            deltaArea = state.intParms.deltaTime * (1 - loadVec[xLoad]);
+        }else {
+            deltaArea = state.intParms.deltaTime * (loadVec[xLoad + 1] - loadVec[xLoad]);
+            }
         // Loop over infection levels. Skip age 0 -- no infections
         for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.
@@ -79,12 +82,5 @@ void setInitialInfecteds(const State& state) {
             infecteds.setIndex(xAge, xLoad,  infectedVal);
         }
     }
-    // Normalize the initial infections to get the correct total infected population.
-    double normalizer = state.modParms.initialInfectedPop / totalInfected;
-    printf("Initial infected normalizer = %f\n", normalizer);
-    for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
-        for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
-            infecteds.setIndex(xAge, xLoad,  normalizer * infecteds.getIndex(xAge, xLoad));
-        }
-    }
 }
+

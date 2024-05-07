@@ -14,6 +14,7 @@ public:
         ageSize_ = ageSize;
         infectionSize_ = infectionSize;
     }
+    //getters and setters
     std::vector<double>* getCurrentState() {return currentState_.get();}
     double getIndex(size_t ageIndex, size_t infectionIndex) {
         return (*currentState_)[ageIndex * infectionSize_ + infectionIndex];
@@ -24,6 +25,8 @@ public:
     double* getInfectionRow(size_t ageIndex) {
         return &(*currentState_)[ageIndex * infectionSize_];
     }
+    size_t getAgeSize(){return ageSize_;}
+    size_t getInfectionSize(){return infectionSize_;}
 
 private:
     std::unique_ptr<std::vector<double>> currentState_;
