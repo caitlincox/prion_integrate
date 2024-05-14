@@ -4,16 +4,16 @@
 #include <cassert>
 
 void assertAproxEqual(double a, double b) {
-    assert(std::abs(a - b) < 0.01 * (a + b)/2.0);
+    assert(std::abs(a - b) <= 0.01 * (a + b)/2.0);
 }
 
 void verifySusceptibleTotal(const State& state, double expectedTotal) {
     double total = 0.0;
     std::vector<double>& dist = *state.susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
-        total += dist[xAge] * state.intParms.deltaTime;
+        total += dist[xAge];
     }
-    assertAproxEqual(total, expectedTotal);
+    assertAproxEqual(total * state.intParms.deltaTime, expectedTotal);
 }
 
 void verifyInfectedTotal(const State& state, double expectedTotal) {
@@ -60,7 +60,51 @@ void testDistributionMeasure(double (*dist) (double, double, double), double par
 }
 
 
-void runInitTests(){
+void runInitTests() {
     //testDistributionMeasure(&weibullOfAge, 0.2216, 2, 0.02, 0, 10);
     testDistributionMeasure(&gammaDist, 0.10, 5, 0.001, 0, 1);
 };
+
+void testInfection(State&state, NewInfections& infections) {
+    testInfectionNumbers(state, infections);
+    for (int i = 0; i < state.compParms.ageSize; i++) {
+        double susNum = infections.getSusceptibles()->getCurrentState()->at(i) * state.intParms.deltaTime;
+        testRowSum(*infections.getInfecteds(), i, susNum, state);
+    }
+}
+
+// Tests whether the moved susceptibles = moved infecteds
+void testInfectionNumbers(State& state, NewInfections& infections) {
+    double susTotal = 0;
+    for(int xAge = 0; xAge < state.compParms.ageSize; xAge++){
+        susTotal += infections.getSusceptibles()->getCurrentState()->at(xAge) * state.intParms.deltaTime;
+    }
+    double infTotal = 0.0;
+    double deltaInfection;
+    for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
+        double currentLoad = state.compParms.columnLoads->at(xLoad);
+        if(xLoad == state.compParms.infectionSize - 1) {
+            deltaInfection = 1 - currentLoad;
+        }else {
+            deltaInfection = state.compParms.columnLoads->at(xLoad + 1) - currentLoad;
+        }
+        for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
+            double popDensityAtAge = infections.getInfecteds()->getIndex(xAge, xLoad);
+            if (xAge == 0) {
+                assert(popDensityAtAge == 0.0);
+            }
+            infTotal += popDensityAtAge * state.intParms.deltaTime * deltaInfection;
+        }
+    }
+    assertAproxEqual(susTotal, infTotal);
+}
+
+// Tests whether an age row of infecteds (or infection) adds up to intended density
+void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, State& state) {
+    double sum = 0;
+    for (int i = 0; i < state.compParms.infectionSize; i++) {
+        double deltaLoad = state.compParms.deltaInfectionForLoad->at(i);
+        sum += infecteds.getIndex(ageIndex, i) * state.intParms.deltaTime * deltaLoad;
+    }
+    assertAproxEqual(sum, expectedSum);
+}

@@ -38,7 +38,7 @@ struct ComputedParams {
     // Currently computed in death.cc (unimplemented).
     double lambda = 0.0;
     size_t ageSize = 0;
-    size_t infectionSize = 0;; 
+    size_t infectionSize = 0;
     // Parameters computed per step.
     double totalInfection = 0.0;
     double infectedPop = 0.0;

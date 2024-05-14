@@ -27,8 +27,8 @@ void Death::kill(State& state) {
         infectedDeaths += killInfecteds(ageInYears, state, ageIndex);
     }
     state.compParms.naturalDeaths = (susceptibleDeaths + infectedDeaths) * state.intParms.deltaTime;
-    //double dedSus = susceptibleDeaths * state.intParms.deltaTime;
-    //double dedInf = infectedDeaths * state.intParms.deltaTime;
+    double dedSus = susceptibleDeaths * state.intParms.deltaTime;
+    double dedInf = infectedDeaths * state.intParms.deltaTime;
 }
 
 //Subtract susceptible density for an age in accordance with deathrate. Returns amount subtracted.

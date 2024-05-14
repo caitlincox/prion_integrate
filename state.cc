@@ -86,7 +86,7 @@ void State::updateComputedParameters() {
     compParms.maxInfectedsPopDensity = 0.0;
     compParms.maxSusceptiblesPopDensity = 0.0;
     double dt = intParms.deltaTime;
-    double it = compParms.deltaLogInfection;
+    double it; //delta infection
     double totalLoad = 0.0;
     auto& columnLoads = *compParms.columnLoads;
     auto& susceptiblesVec = *susceptibles->getCurrentState();
@@ -101,6 +101,7 @@ void State::updateComputedParameters() {
             if (popDensityAtLoad > compParms.maxInfectedsPopDensity) {
                 compParms.maxInfectedsPopDensity = popDensityAtLoad;
             }
+            it = compParms.deltaInfectionForLoad->at(xLoad);
             double infectedPopAtLoad = popDensityAtLoad * dt * it;
             compParms.infectedPop += infectedPopAtLoad;
             compParms.transferRate += modParms.beta * columnLoads[xLoad] * popDensityAtLoad;

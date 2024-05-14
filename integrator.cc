@@ -11,22 +11,34 @@ Integrator::Integrator(
     std::unique_ptr<BirthScheme> births,
     std::unique_ptr<Death> deaths,
     std::unique_ptr<State> state,
+    std::unique_ptr<NewInfections> newInfections,
     bool expectConstantPop)
 {
     births_ = std::move(births);
     deaths_ = std::move(deaths);
     state_ = std::move(state);
+    newInfections_ = std::move(newInfections);
     expectConstantPop_ = expectConstantPop;
 }
 
 void Integrator::run() {
+    int ct = 0;
     for (double time = 0.0; time < state_->intParms.totalTime;
            time += state_->intParms.deltaTime) {
 // temp
-state_->writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
-state_->writeInfectedsPGM("initial_infecteds.pgm");
+        if(ct % 10 == 0) {
+            state_->writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
+            state_->writeInfectedsPGM("initial_infecteds.pgm");
+            char buffer[1024];
+            setvbuf(stdout, buffer, _IOFBF, 1024);
+            printf("%f", time);
+            fflush(stdout);
+        }
         runTests(*state_, expectConstantPop_);
         update();
+        testInfection(*state_, *newInfections_);
+        //temp
+        ct++;
     }
 }
 
@@ -53,16 +65,14 @@ void Integrator::timeStep() {
     // The special case of the bucket that would die both from age and
     // infection is added to the age deaths.
     for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
-        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad) * compParms.deltaInfectionForLoad->at(xMaxLoad); //this is WRONG lmao.. possibly not see above
+        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad) * compParms.deltaInfectionForLoad->at(xMaxLoad); // this is WRONG lmao.. possibly not see above
     }
     compParms.infectionDeaths *= state_->intParms.deltaTime; //scale by delta time
 
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
-    // time step below.
-    Infecteds newInfecteds = Infecteds(infecteds->getAgeSize(), infecteds->getInfectionSize());
-    
-    
+    // time step below.    
+    newInfections_->prepInfecteds(*state_);
     // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
@@ -84,4 +94,7 @@ void Integrator::timeStep() {
     }
     // Add in births to suseptibles.
     susVec[0] = births;
+    // Add newly infecteds
+    newInfections_->moveInfecteds(*state_);
+
 }
