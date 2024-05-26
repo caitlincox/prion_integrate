@@ -32,6 +32,7 @@ void Integrator::run() {
     uint32_t epoch = 0;
     for (double time = 0.0; time < state_->intParms.totalTime;
            time += state_->intParms.deltaTime) {
+        state_->updateComputedParameters();
         uint32_t nextEpoch = computeTimeEpoch(time, state_->intParms.deltaTime,
                 state_->intParms.totalTime, 100);
         if (nextEpoch != epoch) {
@@ -43,15 +44,10 @@ printf("Writing graphs\n");
             epoch = nextEpoch;
         }
         runTests(*state_, expectConstantPop_);
-        update();
+        timeStep();
 // temp
 //        testInfection(*state_, *newInfections_);
     }
-}
-
-void Integrator::update() {
-    state_->updateComputedParameters();
-    timeStep();
 }
 
 // We kill off animals at a max age.  This has contributions from both susceptibles and infecteds.
