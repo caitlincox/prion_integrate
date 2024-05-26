@@ -19,12 +19,25 @@ Integrator::Integrator(
     expectConstantPop_ = expectConstantPop;
 }
 
+// Determine if we will pass a time epoch boundary this time step.  This is
+// used to do occasional compute-intensive processing such as writing graphs of
+// the current state.
+uint32_t computeTimeEpoch(float time, float deltaTime, float totalTime, uint32_t numEpochs) {
+    return static_cast<uint32_t>(time * numEpochs / totalTime);
+}
+
 void Integrator::run() {
+    uint32_t epoch = 0;
     for (double time = 0.0; time < state_->intParms.totalTime;
            time += state_->intParms.deltaTime) {
-// temp
-state_->writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
-state_->writeInfectedsPGM("initial_infecteds.pgm");
+        uint32_t nextEpoch = computeTimeEpoch(time, state_->intParms.deltaTime,
+                state_->intParms.totalTime, 100);
+        if (nextEpoch != epoch) {
+            std::string epochStr = std::to_string(epoch);
+            state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
+            state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
+            epoch = nextEpoch;
+        }
         runTests(*state_, expectConstantPop_);
         update();
     }

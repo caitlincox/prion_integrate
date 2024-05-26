@@ -21,6 +21,7 @@ tests.cc
 
 prion_integrate: $(HDRS) $(SRCS)
 	g++ -g -o prion_integrate $(SRCS) -lm
+	mkdir -p ./data
 
 clean:
 	rm -f prion_integrate
