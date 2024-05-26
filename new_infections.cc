@@ -66,19 +66,19 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
     // Counter for debugging
     double totalInfected = 0.0;
     //Zero out min age and min infection since none left after move 
-    for (int zeros = 0; zeros < state.compParms.infectionSize + state.compParms.ageSize; zeros++){
+    for (size_t zeros = 0; zeros < state.compParms.infectionSize + state.compParms.ageSize; zeros++){
         if (zeros < state.compParms.infectionSize){
             deltaInfections_->setIndex(0, zeros, 0);
         }else {
             deltaInfections_->setIndex(zeros - state.compParms.infectionSize, 0, 0);
         }
     }
-    for(int xLoad = 1; xLoad < state.compParms.infectionSize; xLoad++) {
+    for(size_t xLoad = 1; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in previous infection level & advance load by 1...
         double gammaVal = gammaDist(loadVec[xLoad - 1], state.modParms.aveInitInfectionLoad, shapeParam);
         deltaArea = state.intParms.deltaTime * state.compParms.deltaInfectionForLoad->at(xLoad);
         // Loop over infection levels. Skip age 0 -- no infections
-        for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+        for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             double infectedVal = deltaSusceptibles[xAge] * gammaVal;
             totalInfected += infectedVal * deltaArea;
             deltaInfections_->setIndex(xAge, xLoad,  infectedVal);
@@ -90,9 +90,9 @@ void NewInfections::moveInfecteds(State& state){
     auto& susceptibles = *state.susceptibles->getCurrentState(), deltaSus = *deltaSusceptibles_->getCurrentState();
     Infecteds& infecteds = *state.infecteds;
     Infecteds& deltaInf = *deltaInfections_;
-    for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+    for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
         susceptibles[xAge] -= deltaSus[xAge];
-        for(int xLoad = 1; xLoad < state.compParms.infectionSize; xLoad++) {
+        for(size_t xLoad = 1; xLoad < state.compParms.infectionSize; xLoad++) {
             double newDensity = infecteds.getIndex(xAge, xLoad) + deltaInf.getIndex(xAge, xLoad);
             infecteds.setIndex(xAge, xLoad, newDensity);
         }

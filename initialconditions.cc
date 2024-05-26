@@ -58,7 +58,7 @@ void setInitialInfecteds(const State& state) {
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
         deltaArea = state.intParms.deltaTime * state.compParms.deltaInfectionForLoad->at(xLoad);
         // Loop over infection levels. Skip age 0 -- no infections
-        for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+        for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.
             double weight = susceptibles[xAge] / numSusceptibles;
             // Get density of new infecteds at this bucket & age.

@@ -35,6 +35,8 @@ void Integrator::run() {
         uint32_t nextEpoch = computeTimeEpoch(time, state_->intParms.deltaTime,
                 state_->intParms.totalTime, 100);
         if (nextEpoch != epoch) {
+// temp
+printf("Writing graphs\n");
             std::string epochStr = std::to_string(epoch);
             state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
             state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
@@ -58,6 +60,7 @@ void Integrator::computeAgeDeaths() {
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
     // Initialize age deaths to the oldest suseptibles.
     compParms.ageDeaths = susVec[compParms.ageSize - 1];
+    susVec[compParms.ageSize - 1] = 0.0;
     size_t xMaxAge = compParms.ageSize - 1;
     for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
         compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad) * compParms.deltaInfectionForLoad->at(xLoad);
@@ -66,9 +69,10 @@ void Integrator::computeAgeDeaths() {
 }
 
 // Compute deaths from infection.
-double Integrator::computeInfectionDeaths() {
+void Integrator::computeInfectionDeaths() {
     ComputedParams& compParms = state_->compParms;
     Infecteds* infecteds = state_->infecteds.get();
+    size_t xMaxAge = compParms.ageSize - 1;
     compParms.infectionDeaths = 0.0;
     size_t xMaxLoad = compParms.infectionSize - 1;
     // The special case of the bucket that would die both from age and
@@ -84,6 +88,7 @@ void Integrator::timeStep() {
     computeAgeDeaths();
     computeInfectionDeaths();
     ComputedParams& compParms = state_->compParms;
+    size_t xMaxAge = compParms.ageSize - 1;
     Infecteds* infecteds = state_->infecteds.get();
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
     // TODO: Insert call to compute delta infecteds here.  We do this before

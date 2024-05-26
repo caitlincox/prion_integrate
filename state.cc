@@ -60,6 +60,7 @@ void State::initializeComputedParameters() {
     for (size_t i = 0; i < compParms.infectionSize - 1; i++) {
         deltaInfection[i] = columnLoads[i + 1] - columnLoads[i];
     }
+    testDeltaInfectionsAddToOne(*this);
 }
 
 State::State(IntegrationParams integrationParams, ModelParams modelParams) {
@@ -119,7 +120,7 @@ void State::writeInfectedsPGM(const std::string& filename) const {
     size_t rows = compParms.infectionSize;
     size_t columns = compParms.ageSize;
     FILE* file = fopen(filename.c_str(), "w");
-    fprintf(file, "P2\n%u %u\n255\n", columns, rows);
+    fprintf(file, "P2\n%lu %lu\n255\n", columns, rows);
     for (size_t xLoad = 0; xLoad < rows; xLoad++) {
         bool firstTime = true;
         for (size_t xAge = 0; xAge < columns; xAge++) {
@@ -138,9 +139,6 @@ void State::writeInfectedsPGM(const std::string& filename) const {
 namespace {
 
 void setBit(bool* bitmap, size_t rows, size_t columns, size_t x, size_t y, uint32_t width) {
-    if(!(x < columns && y < rows)){
-        bool flag = true;
-    }
     assert(x < columns && y < rows);
     size_t left = x > width? x - width : 0;
     size_t bottom = y > width? y - width : 0;
@@ -170,7 +168,7 @@ void State::writeSusceptiblesPBM(const std::string& filename, uint32_t width) co
         setBit(bitmap, rows, columns, xAge, rowIndex, width);
     }
     FILE* file = fopen(filename.c_str(), "w");
-    fprintf(file, "P1\n%u %u\n", columns, rows);
+    fprintf(file, "P1\n%lu %lu\n", columns, rows);
     for (size_t xRow = 0; xRow < rows; xRow++) {
         for (size_t xCol = 0; xCol < columns; xCol++) {
             bool filled = bitmap[xRow * columns + xCol];

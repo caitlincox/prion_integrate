@@ -22,14 +22,14 @@ void infect(const State& state) {
     double deltaInfection = state.compParms.deltaLogInfection;
     double deltaArea = state.intParms.deltaTime * deltaInfection;
 
-    for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
+    for(size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in this infection level
         // TODO: The gamma distribution function needs work: It needs more
         // parameters to cause the total infecteds to add to numInfecteds.
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
 
         // Loop over infection levels. Skip age 0 -- no infections
-        for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+        for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.
             double weight = susceptibles[xAge] / numSusceptibles;
             // Get density of new infecteds at this bucket & age.
@@ -41,8 +41,8 @@ void infect(const State& state) {
     // Normalize the initial infections to get the correct total infected population.
     double normalizer = state.modParms.initialInfectedPop / totalInfected;
     printf("Initial infected normalizer = %f\n", normalizer);
-    for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
-        for(int xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+    for(size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
+        for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             infecteds.setIndex(xAge, xLoad,  normalizer * infecteds.getIndex(xAge, xLoad));
         }
     }

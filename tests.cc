@@ -67,7 +67,7 @@ void runInitTests() {
 
 void testInfection(State&state, NewInfections& infections) {
     testInfectionNumbers(state, infections);
-    for (int i = 0; i < state.compParms.ageSize; i++) {
+    for (size_t i = 0; i < state.compParms.ageSize; i++) {
         double susNum = infections.getSusceptibles()->getCurrentState()->at(i) * state.intParms.deltaTime;
         testRowSum(*infections.getInfecteds(), i, susNum, state);
     }
@@ -76,7 +76,7 @@ void testInfection(State&state, NewInfections& infections) {
 // Tests whether the moved susceptibles = moved infecteds
 void testInfectionNumbers(State& state, NewInfections& infections) {
     double susTotal = 0;
-    for(int xAge = 0; xAge < state.compParms.ageSize; xAge++){
+    for(size_t xAge = 0; xAge < state.compParms.ageSize; xAge++){
         susTotal += infections.getSusceptibles()->getCurrentState()->at(xAge) * state.intParms.deltaTime;
     }
     double infTotal = 0.0;
@@ -102,7 +102,7 @@ void testInfectionNumbers(State& state, NewInfections& infections) {
 // Tests whether an age row of infecteds (or infection) adds up to intended density
 void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, State& state) {
     double sum = 0;
-    for (int i = 0; i < state.compParms.infectionSize; i++) {
+    for (size_t i = 0; i < state.compParms.infectionSize; i++) {
         double deltaLoad = state.compParms.deltaInfectionForLoad->at(i);
         sum += infecteds.getIndex(ageIndex, i) * state.intParms.deltaTime * deltaLoad;
     }
@@ -113,9 +113,19 @@ void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, State
 // by equally distributing individuals over the range of infection loads we look at
 void testInfectedsDensity(State& state) {
         Infecteds ass = Infecteds(state.compParms.ageSize, state.compParms.infectionSize); //shit's fucked
-        for (int i = 0; i < state.compParms.infectionSize; i++) { 
-            for (int j = 0; j < state.compParms.ageSize; j++) {
+        for (size_t i = 0; i < state.compParms.infectionSize; i++) { 
+            for (size_t j = 0; j < state.compParms.ageSize; j++) {
                 ass.setIndex(j, i, 1);
             }
         }
+}
+
+// Test taht delta infections adds to 1.
+void testDeltaInfectionsAddToOne(const State& state) {
+    auto& compParms = state.compParms;
+    double totalDelta = 0.0;
+    for (size_t i = 0; i < compParms.infectionSize; i++) {
+        totalDelta += (*compParms.deltaInfectionForLoad)[i];
+    }
+    assertAproxEqual(totalDelta, 1.0);
 }

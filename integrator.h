@@ -31,8 +31,8 @@ private:
     void timeStep();
 
     // These are specific to how we integrate over time.
-    double computeAgeDeaths();
-    double computeInfectionDeaths();
+    void computeAgeDeaths();
+    void computeInfectionDeaths();
 
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;

@@ -5,12 +5,11 @@
 #include "tests.h"
 
 int main() {
-     // TEMP TESTS
+    // TEMP TESTS
     runInitTests();
-    //
     
     IntegrationParams integrationParams = {
-        .deltaTime = 0.005, //0.02
+        .deltaTime = 0.02,
         .totalTime = 15.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
@@ -34,9 +33,7 @@ int main() {
     auto infections = std::make_unique<NewInfections>(*state);
     auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state), std::move(infections), true);
     const State& state_ref = integrator.getState();
-    const State& state_ref_3 = integrator.getState();
-    verifySusceptibleTotal(state_ref_3, 9999.0);
-    double yo = 0;
+    verifySusceptibleTotal(state_ref, 9999.0);
     integrator.run();
     return 0;
 }

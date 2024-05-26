@@ -26,4 +26,4 @@ prion_integrate: $(HDRS) $(SRCS)
 	mkdir -p ./data
 
 clean:
-	rm -f prion_integrate
+	rm -rf prion_integrate data

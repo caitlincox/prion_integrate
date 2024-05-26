@@ -13,6 +13,7 @@ void runInitTests();
 void testInfectionNumbers(State& state, NewInfections& newInfections);
 void testInfection(State& state, NewInfections& infections);
 void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, State& state);
+void testDeltaInfectionsAddToOne(const State& state);
 
 
 #endif

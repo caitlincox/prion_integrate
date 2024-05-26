@@ -17,18 +17,17 @@ double Death::weibullDeathRate(double age) {
 
 // Kill off population due to natural deaths (e.g. getting eaten).
 void Death::kill(State& state) {
-  //for now will call weibull... potentially will make polymorphic later
-  //will also only kill off susceptibles for now
+    //for now will call weibull... potentially will make polymorphic later
+    //will also only kill off susceptibles for now
     double susceptibleDeaths = 0; //this is a counter
     double infectedDeaths = 0;
-    for(size_t ageIndex = 0; ageIndex < state.compParms.ageSize; ageIndex++){
+    for (size_t ageIndex = 0; ageIndex < state.compParms.ageSize; ageIndex++){
         double ageInYears = (double) ageIndex * state.intParms.deltaTime;
-        susceptibleDeaths += killSusceptibles(ageInYears, state, ageIndex); //removes susceptible density & returns amount subtracted
+        //removes susceptible density & returns amount subtracted
+        susceptibleDeaths += killSusceptibles(ageInYears, state, ageIndex);
         infectedDeaths += killInfecteds(ageInYears, state, ageIndex);
     }
     state.compParms.naturalDeaths = (susceptibleDeaths + infectedDeaths) * state.intParms.deltaTime;
-    double dedSus = susceptibleDeaths * state.intParms.deltaTime;
-    double dedInf = infectedDeaths * state.intParms.deltaTime;
 }
 
 //Subtract susceptible density for an age in accordance with deathrate. Returns amount subtracted.
@@ -40,13 +39,14 @@ double Death::killSusceptibles(double ageInYears, State& state, size_t index){
     return killed; //record deaths
 }
 
-//Subtract infected density for an age in accordance with deathrate. Returns amount subtracted.
-//In order to get infected density for age, integrates out infection variable.
+// Subtract infected density for an age in accordance with deathrate. Returns amount subtracted.
+// In order to get infected density for age, integrates out infection variable.
 double Death::killInfecteds(double ageInYears, State& state, size_t ageIndex){
-    double infDeathRate = weibullDeathRate(ageInYears) * state.intParms.deltaTime; //multiply by dt because return value is in deaths/year units
+    // multiply by dt because return value is in deaths/year units
+    double infDeathRate = weibullDeathRate(ageInYears) * state.intParms.deltaTime;
     double infDeaths = 0;
     double deltaInfection;
-    for(size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize; infectionIndex++){ 
+    for (size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize; infectionIndex++){ 
         double currentInfecteds = state.infecteds->getIndex(ageIndex, infectionIndex);
         double infectedsKilled = currentInfecteds * infDeathRate;
         deltaInfection = state.compParms.deltaInfectionForLoad->at(infectionIndex);
