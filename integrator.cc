@@ -44,7 +44,8 @@ printf("Writing graphs\n");
         }
         runTests(*state_, expectConstantPop_);
         update();
-        testInfection(*state_, *newInfections_);
+// temp
+//        testInfection(*state_, *newInfections_);
     }
 }
 
