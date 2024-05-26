@@ -95,7 +95,8 @@ void Integrator::timeStep() {
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
     // time step below.    
-    newInfections_->prepInfecteds(*state_);
+// temp
+//     newInfections_->prepInfecteds(*state_);
     // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
@@ -118,10 +119,10 @@ void Integrator::timeStep() {
     // Add in births to suseptibles.
     susVec[0] = births;
 // temp
-double deltaInf = state_->compParms.deltaLogInfection;
+double deltaInfInv = 1.0 / state_->compParms.deltaInfection;
 for (size_t xAge = 1; xAge < compParms.ageSize; xAge++) {
     for (size_t xLoad = 1; xLoad < compParms.infectionSize; xLoad++) {
-        infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) - deltaInf);
+        infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) * deltaInfInv);
     }
 }
     // Add newly infecteds

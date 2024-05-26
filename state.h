@@ -34,7 +34,7 @@ struct ModelParams {
 struct ComputedParams {
     // Change in log(infection) between infection buckets.  For 100 buckets, it
     // should be close to 0.001.
-    double deltaLogInfection;
+    double deltaInfection;
     // Currently computed in death.cc (unimplemented).
     double lambda = 0.0;
     size_t ageSize = 0;
