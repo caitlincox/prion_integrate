@@ -11,12 +11,12 @@ void NewInfections::prepInfecteds(State& state) {
     calculateDeltaInfecteds(state);
 }
 
-// Given S(a*, t*), using forward Euler integration in time, finds the component of
-// S(a* + da, t* + dt) - S(a*, t*) that is due to infection of susceptibles.
-// It calculates this for all values of a* between 0 and (maxAge - da)
-// In other words, finds the density fcn for susceptibles infected
-// between time t* and time t* + dt.
-// also moves this one da, dt forward in age/time
+// Given S(a*, t*), using forward Euler integration in time, finds the
+// component of S(a* + da, t* + dt) - S(a*, t*) that is due to infection of
+// susceptibles.  It calculates this for all values of a* between 0 and (maxAge
+// - da) In other words, finds the density fcn for susceptibles infected
+// between time t* and time t* + dt.  also moves this one da, dt forward in
+// age/time
 void NewInfections::calculateDeltaSusceptibles(State& state) {
     double betaI = calculateInfectionCoefficient(state);
     double rate;
@@ -30,7 +30,6 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
         count += deltaSusceptibles[xAge + 1] * state.intParms.deltaTime;
     }
 }
-
 
 // Given current state, calculates the integral that corresponds to "Beta * I"
 // in an ODE SIR model. More details in Stringer et al. paper.

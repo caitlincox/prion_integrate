@@ -117,7 +117,14 @@ void Integrator::timeStep() {
     }
     // Add in births to suseptibles.
     susVec[0] = births;
+// temp
+double deltaInf = state_->compParms.deltaLogInfection;
+for (size_t xAge = 1; xAge < compParms.ageSize; xAge++) {
+    for (size_t xLoad = 1; xLoad < compParms.infectionSize; xLoad++) {
+        infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) - deltaInf);
+    }
+}
     // Add newly infecteds
-    newInfections_->moveInfecteds(*state_);
-
+// temp
+//     newInfections_->moveInfecteds(*state_);
 }
