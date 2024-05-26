@@ -6,7 +6,8 @@ initialconditions.h \
 integrator.h \
 state.h \
 susceptibles.h \
-tests.h
+tests.h \
+new_infections.h 
 
 SRCS= \
 birth.cc \
@@ -17,7 +18,8 @@ integrator.cc \
 prion_integrate.cc \
 state.cc \
 susceptibles.cc \
-tests.cc
+tests.cc \
+new_infections.cc
 
 prion_integrate: $(HDRS) $(SRCS)
 	g++ -Wall -g -o prion_integrate $(SRCS) -lm

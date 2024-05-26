@@ -11,11 +11,13 @@ Integrator::Integrator(
     std::unique_ptr<BirthScheme> births,
     std::unique_ptr<Death> deaths,
     std::unique_ptr<State> state,
+    std::unique_ptr<NewInfections> newInfections,
     bool expectConstantPop)
 {
     births_ = std::move(births);
     deaths_ = std::move(deaths);
     state_ = std::move(state);
+    newInfections_ = std::move(newInfections);
     expectConstantPop_ = expectConstantPop;
 }
 
@@ -40,6 +42,7 @@ void Integrator::run() {
         }
         runTests(*state_, expectConstantPop_);
         update();
+        testInfection(*state_, *newInfections_);
     }
 }
 
@@ -85,10 +88,8 @@ void Integrator::timeStep() {
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
-    // time step below.
-    Infecteds newInfecteds = Infecteds(infecteds->getAgeSize(), infecteds->getInfectionSize());
-    
-    
+    // time step below.    
+    newInfections_->prepInfecteds(*state_);
     // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
@@ -110,4 +111,7 @@ void Integrator::timeStep() {
     }
     // Add in births to suseptibles.
     susVec[0] = births;
+    // Add newly infecteds
+    newInfections_->moveInfecteds(*state_);
+
 }

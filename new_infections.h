@@ -6,10 +6,15 @@
 #define NEWINFECTIONS
 class NewInfections{
 public:
-    NewInfections(State& state);
-    void calculateNewInfections(State& state);
-    void subtractFromSusceptibles(State& state);
-    void addToInfecteds(State& state);
+    NewInfections(const State& state);
+    void calculateDeltaSusceptibles(State& state);
+    void calculateDeltaInfecteds(State& state);
+    void moveInfecteds(State& state);
+    double calculateInfectionCoefficient(State& state);
+    double betaForLoad(State& state, double infectionLoad);
+    void prepInfecteds(State& state);
+    Infecteds* getInfecteds() {return deltaInfections_.get();}
+    Susceptibles* getSusceptibles() {return deltaSusceptibles_.get();}
 private:
     std::unique_ptr<Infecteds> deltaInfections_;
     std::unique_ptr<Susceptibles> deltaSusceptibles_;
