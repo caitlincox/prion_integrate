@@ -34,8 +34,6 @@ int main() {
     auto infections = std::make_unique<NewInfections>(*state);
     auto integrator = Integrator(std::move(births), std::move(deaths), std::move(state), std::move(infections), true);
     const State& state_ref = integrator.getState();
-    state_ref.writeInfectedsPGM("initial_infecteds.pgm");
-    state_ref.writeSusceptiblesPBM("initial_suseptibles.pbm", 2);
     const State& state_ref_3 = integrator.getState();
     verifySusceptibleTotal(state_ref_3, 9999.0);
     double yo = 0;

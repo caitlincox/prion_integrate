@@ -108,3 +108,14 @@ void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, State
     }
     assertAproxEqual(sum, expectedSum);
 }
+
+// Tests if density of infecteds sums within a reasonable tolerance given our step sizes
+// by equally distributing individuals over the range of infection loads we look at
+void testInfectedsDensity(State& state) {
+        Infecteds ass = Infecteds(state.compParms.ageSize, state.compParms.infectionSize); //shit's fucked
+        for (int i = 0; i < state.compParms.infectionSize; i++) { 
+            for (int j = 0; j < state.compParms.ageSize; j++) {
+                ass.setIndex(j, i, 1);
+            }
+        }
+}
