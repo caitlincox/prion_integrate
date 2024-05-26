@@ -20,7 +20,7 @@ susceptibles.cc \
 tests.cc
 
 prion_integrate: $(HDRS) $(SRCS)
-	g++ -g -o prion_integrate $(SRCS) -lm
+	g++ -Wall -g -o prion_integrate $(SRCS) -lm
 	mkdir -p ./data
 
 clean:

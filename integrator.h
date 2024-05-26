@@ -28,6 +28,10 @@ private:
     // Update the state to reflect the state after a deltaTime step.
     void timeStep();
 
+    // These are specific to how we integrate over time.
+    double computeAgeDeaths();
+    double computeInfectionDeaths();
+
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;
     std::unique_ptr<State> state_;

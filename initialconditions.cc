@@ -20,17 +20,16 @@ double gammaDist(double infectionLoad, double aveInitInfectionLoad, double shape
 void setStartingDistribution(const State& state) {
     std::vector<double>& dist = *state.susceptibles->getCurrentState();
     assert(dist.size() == state.compParms.ageSize);
-    double lambda = state.compParms.lambda;
     assert(state.compParms.lambda != 0.0);
     double totalSusPop = 0.0;
-    for (int i = 0; i < state.compParms.ageSize; i++) {
+    for (uint32_t i = 0; i < state.compParms.ageSize; i++) {
         dist[i] = weibullOfAge(state.intParms.deltaTime * i, state.compParms.lambda, state.modParms.kappa)
          * state.modParms.initialSusceptiblePop;
         totalSusPop += dist[i] * state.intParms.deltaTime;
     }
     // Normalize it. Weibull of age is a survival fcn, so it won't integrate to 1.
     double normalizer = state.modParms.initialSusceptiblePop/totalSusPop;
-    for (int i = 0; i < state.compParms.ageSize; i++) {
+    for (uint32_t i = 0; i < state.compParms.ageSize; i++) {
         dist[i] *= normalizer;
     }
 }
@@ -54,7 +53,7 @@ void setInitialInfecteds(const State& state) {
     //Counter for debugging
     double totalInfected = 0.0;
     //double deltaArea = state.intParms.deltaTime * deltaInfection; //wrong bc transformation not measure preserving
-    for(int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
+    for(uint32_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in this infection level
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
         deltaArea = state.intParms.deltaTime * state.compParms.deltaInfectionForLoad->at(xLoad);

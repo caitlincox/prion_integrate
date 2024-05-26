@@ -48,8 +48,8 @@ void Integrator::update() {
     timeStep();
 }
 
-void Integrator::timeStep() {
-    // Compute deaths before the memmove.
+// We kill off animals at a max age.  This has contributions from both susceptibles and infecteds.
+void Integrator::computeAgeDeaths() {
     ComputedParams& compParms = state_->compParms;
     Infecteds* infecteds = state_->infecteds.get();
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
@@ -60,16 +60,29 @@ void Integrator::timeStep() {
         compParms.ageDeaths += infecteds->getIndex(xMaxAge, xLoad) * compParms.deltaInfectionForLoad->at(xLoad);
     }
     compParms.ageDeaths *= state_->intParms.deltaTime; //Scale by delta time
-    // Compute deaths from infection.
+}
+
+// Compute deaths from infection.
+double Integrator::computeInfectionDeaths() {
+    ComputedParams& compParms = state_->compParms;
+    Infecteds* infecteds = state_->infecteds.get();
     compParms.infectionDeaths = 0.0;
     size_t xMaxLoad = compParms.infectionSize - 1;
     // The special case of the bucket that would die both from age and
     // infection is added to the age deaths.
     for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
-        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad) * compParms.deltaInfectionForLoad->at(xMaxLoad); //this is WRONG lmao.. possibly not see above
+        compParms.infectionDeaths += infecteds->getIndex(xAge, xMaxLoad) * compParms.deltaInfectionForLoad->at(xMaxLoad);
     }
+    // Note that infections in a column are from 0 to 1, so total area is just deltaTime.
     compParms.infectionDeaths *= state_->intParms.deltaTime; //scale by delta time
+}
 
+void Integrator::timeStep() {
+    computeAgeDeaths();
+    computeInfectionDeaths();
+    ComputedParams& compParms = state_->compParms;
+    Infecteds* infecteds = state_->infecteds.get();
+    std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
     // TODO: Insert call to compute delta infecteds here.  We do this before
     // the step because we're using forward Euler.  Add the delta in after the
     // time step below.
