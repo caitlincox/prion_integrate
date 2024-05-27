@@ -49,7 +49,9 @@ struct ComputedParams {
     double ageDeaths = 0.0;
     double naturalDeaths = 0.0;
     double infectionDeaths = 0.0;
-    double maxInfectedsPopDensity = 0.0;
+    // The pop density in the infecteds table is applied to an area which is
+    // deltaT * deltaInfectionForLoad[xLoad].
+    double maxInfectedsPop = 0.0;
     double maxSusceptiblesPopDensity = 0.0;
     // Computed in initialcontinsion.cc.
     double intrinsicGrowthRate = 0.0; //in Stringer et al. this param is called c1

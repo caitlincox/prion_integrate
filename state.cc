@@ -84,10 +84,9 @@ void State::updateComputedParameters() {
     compParms.susceptiblePop = 0.0;
     compParms.transferRate = 0.0;
     compParms.aveLoad = 0.0;
-    compParms.maxInfectedsPopDensity = 0.0;
+    compParms.maxInfectedsPop = 0.0;
     compParms.maxSusceptiblesPopDensity = 0.0;
     double dt = intParms.deltaTime;
-    double it; //delta infection
     double totalLoad = 0.0;
     auto& columnLoads = *compParms.columnLoads;
     auto& susceptiblesVec = *susceptibles->getCurrentState();
@@ -98,15 +97,14 @@ void State::updateComputedParameters() {
             compParms.maxSusceptiblesPopDensity = popDensityAtAge;
         }
         for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
-            double popDensityAtLoad = infecteds->getIndex(xAge, xLoad);
-            if (popDensityAtLoad > compParms.maxInfectedsPopDensity) {
-                compParms.maxInfectedsPopDensity = popDensityAtLoad;
+            double popAtLoad = infecteds->getIndex(xAge, xLoad) *
+                  intParms.deltaTime * (*compParms.deltaInfectionForLoad)[xLoad];
+            if (popAtLoad > compParms.maxInfectedsPop) {
+                compParms.maxInfectedsPop = popAtLoad;
             }
-            it = compParms.deltaInfectionForLoad->at(xLoad);
-            double infectedPopAtLoad = popDensityAtLoad * dt * it;
-            compParms.infectedPop += infectedPopAtLoad;
-            compParms.transferRate += modParms.beta * columnLoads[xLoad] * popDensityAtLoad;
-            totalLoad += columnLoads[xLoad] * infectedPopAtLoad;
+            compParms.infectedPop += popAtLoad;
+            compParms.transferRate += modParms.beta * columnLoads[xLoad] * popAtLoad;
+            totalLoad += columnLoads[xLoad] * popAtLoad;
         }
     }
     compParms.popSize = compParms.susceptiblePop + compParms.infectedPop;
@@ -129,7 +127,7 @@ void State::writeInfectedsPGM(const std::string& filename) const {
             }
             firstTime = false;
             double popDensityAtLoad = infecteds->getIndex(xAge, rows - 1 - xLoad);
-            fprintf(file, "%u", (uint32_t)(popDensityAtLoad * 255 / compParms.maxInfectedsPopDensity));
+            fprintf(file, "%u", (uint32_t)(popDensityAtLoad * 255 / compParms.maxInfectedsPop));
         }
         fputc('\n', file);
     }
