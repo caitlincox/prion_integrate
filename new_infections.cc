@@ -24,9 +24,10 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
     betaI_ = calculateInfectionCoefficient(state);
     auto& susceptibles = *state.susceptibles->getCurrentState();
     auto& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
-    for (size_t xAge = 0; xAge < state.compParms.ageSize - 1; xAge++){
+    double deltaT = state.intParms.deltaTime;
+    for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++){
         //Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
-        deltaSusceptibles[xAge + 1] = betaI_ * susceptibles[xAge];
+        deltaSusceptibles[xAge] = betaI_ * susceptibles[xAge] * deltaT;
     }
 }
 
@@ -43,7 +44,7 @@ double NewInfections::calculateInfectionCoefficient(State& state) {
             coefficient += state.infecteds->getIndex(xAge, xLoad) * deltaLoad * loadBeta;
         }
     }
-    return (coefficient * state.intParms.deltaTime); // da doens't change by age, so can multiply by it at end. (dt = da)
+    return coefficient * state.intParms.deltaTime; // da doens't change by age, so can multiply by it at end. (dt = da)
 
 }
 
@@ -62,7 +63,6 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
     std::vector<double>& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
     double shapeParam = state.modParms.gammaShapeParam;
     // Counter for debugging
-    double totalInfected = 0.0;
     //Zero out min age and min infection since none left after move 
     for (size_t zeros = 0; zeros < state.compParms.infectionSize + state.compParms.ageSize; zeros++){
         if (zeros < state.compParms.infectionSize){
@@ -72,19 +72,20 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
         }
     }
     double deltaT = state.intParms.deltaTime;
-    for(size_t xLoad = 1; xLoad < state.compParms.infectionSize; xLoad++) {
+    double totalInfected = 0.0;
+    for(size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in previous infection level & advance load by 1...
-        double gammaVal = gammaDist(loadVec[xLoad - 1], state.modParms.aveInitInfectionLoad, shapeParam);
-        double deltaArea = deltaT * state.compParms.deltaInfectionForLoad->at(xLoad);
-        double deltaAreaInv = 1.0 / deltaArea;
+        double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
+        double newDeltaLoad = state.compParms.deltaInfectionForLoad->at(xLoad);
+        double newDeltaArea = deltaT * newDeltaLoad;
         // Loop over infection levels. Skip age 0 -- no infections
         for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
-            double infectedPop = deltaSusceptibles[xAge] * deltaT * gammaVal;
-            totalInfected += infectedPop;
-            deltaInfections_->setIndex(xAge, xLoad,  infectedPop * deltaAreaInv);
+            double infectedPopDensity = deltaSusceptibles[xAge] * gammaVal;
+            totalInfected += infectedPopDensity * newDeltaArea;
+            deltaInfections_->setIndex(xAge, xLoad,  infectedPopDensity);
         }
     }
-    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_);
+    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_ * deltaT);
 }
 
 void NewInfections::moveInfecteds(State& state){

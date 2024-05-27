@@ -119,6 +119,5 @@ void Integrator::timeStep() {
         }
     }
     // Add newly infecteds
-// temp
-   //  newInfections_->moveInfecteds(*state_);
+   newInfections_->moveInfecteds(*state_);
 }
