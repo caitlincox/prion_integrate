@@ -24,8 +24,7 @@ int main() {
         .aveLifespan = 4.0, //4.0
         .aveInfectiousPeriod = 2.0, //2.0
         .aveInitInfectionLoad = 0.1,
-// temp
-        .beta = 0.0, //0.04
+        .beta = 0.04, //0.04
         .kappa = 2.0,
         .initialSusceptiblePop = susceptiblePop,
         .initialInfectedPop = infectedPop,
