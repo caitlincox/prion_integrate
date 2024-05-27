@@ -42,23 +42,23 @@ void State::initializeComputedParameters() {
     // infection load == 1 is not represented, as the animals would be dead.
     compParms.firstBucketLogLoad = -compParms.intrinsicGrowthRate *
         intParms.deltaTime * compParms.infectionSize;
-    compParms.columnLoads = std::make_unique<std::vector<double>>();
-    compParms.columnLoads->resize(compParms.infectionSize);
+    compParms.rowLoads = std::make_unique<std::vector<double>>();
+    compParms.rowLoads->resize(compParms.infectionSize);
     // Compute the infection load for each bucket.
-    auto& columnLoads = *compParms.columnLoads;
+    auto& rowLoads = *compParms.rowLoads;
     // First bucket is e^w.
-    columnLoads[0] = exp(compParms.firstBucketLogLoad);
+    rowLoads[0] = exp(compParms.firstBucketLogLoad);
     for (size_t i = 0; i < compParms.infectionSize; i++) {
-        columnLoads[i] = exp(compParms.firstBucketLogLoad + i * intParms.deltaTime *
+        rowLoads[i] = exp(compParms.firstBucketLogLoad + i * intParms.deltaTime *
             compParms.intrinsicGrowthRate);
     }
     //Now create a delta load vector as well
     compParms.deltaInfectionForLoad = std::make_unique<std::vector<double>>();
     compParms.deltaInfectionForLoad->resize(compParms.infectionSize);
     auto& deltaInfection = *compParms.deltaInfectionForLoad;
-    deltaInfection[compParms.infectionSize - 1] = 1 - columnLoads[compParms.infectionSize - 1];
+    deltaInfection[compParms.infectionSize - 1] = 1 - rowLoads[compParms.infectionSize - 1];
     for (size_t i = 0; i < compParms.infectionSize - 1; i++) {
-        deltaInfection[i] = columnLoads[i + 1] - columnLoads[i];
+        deltaInfection[i] = rowLoads[i + 1] - rowLoads[i];
     }
     testDeltaInfectionsAddToOne(*this);
 }
@@ -88,7 +88,7 @@ void State::updateComputedParameters() {
     compParms.maxSusceptiblesPopDensity = 0.0;
     double dt = intParms.deltaTime;
     double totalLoad = 0.0;
-    auto& columnLoads = *compParms.columnLoads;
+    auto& rowLoads = *compParms.rowLoads;
     auto& susceptiblesVec = *susceptibles->getCurrentState();
     for (size_t xAge = 0; xAge < maxAgeStep; xAge++) {
         double popDensityAtAge = susceptiblesVec[xAge];
@@ -103,8 +103,8 @@ void State::updateComputedParameters() {
                 compParms.maxInfectedsPop = popAtLoad;
             }
             compParms.infectedPop += popAtLoad;
-            compParms.transferRate += modParms.beta * columnLoads[xLoad] * popAtLoad;
-            totalLoad += columnLoads[xLoad] * popAtLoad;
+            compParms.transferRate += modParms.beta * rowLoads[xLoad] * popAtLoad;
+            totalLoad += rowLoads[xLoad] * popAtLoad;
         }
     }
     compParms.popSize = compParms.susceptiblePop + compParms.infectedPop;

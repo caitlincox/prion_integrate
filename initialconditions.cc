@@ -47,7 +47,7 @@ void setInitialInfecteds(const State& state) {
     double deltaArea;
     //Shorthand variables to make code less verbose
     auto& infecteds = *state.infecteds;
-    std::vector<double>& loadVec = *state.compParms.columnLoads, susceptibles = *state.susceptibles->getCurrentState();
+    std::vector<double>& loadVec = *state.compParms.rowLoads, susceptibles = *state.susceptibles->getCurrentState();
     double shapeParam = state.modParms.gammaShapeParam, numSusceptibles = state.modParms.initialSusceptiblePop,
         numInfecteds = state.modParms.initialInfectedPop; 
     //Counter for debugging

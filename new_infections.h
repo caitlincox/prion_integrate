@@ -18,5 +18,6 @@ public:
 private:
     std::unique_ptr<Infecteds> deltaInfections_;
     std::unique_ptr<Susceptibles> deltaSusceptibles_;
+    double betaI_;
 };
 #endif

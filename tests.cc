@@ -20,11 +20,11 @@ void verifyInfectedTotal(const State& state, double expectedTotal) {
     double total = 0.0;
     double deltaInfection;
     for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
-        double currentLoad = state.compParms.columnLoads->at(xLoad);
+        double currentLoad = state.compParms.rowLoads->at(xLoad);
         if(xLoad == state.compParms.infectionSize - 1) {
             deltaInfection = 1 - currentLoad;
         }else {
-            deltaInfection = state.compParms.columnLoads->at(xLoad + 1) - currentLoad;
+            deltaInfection = state.compParms.rowLoads->at(xLoad + 1) - currentLoad;
         }
         for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
             double popDensityAtAge = state.infecteds->getIndex(xAge, xLoad);
@@ -82,11 +82,11 @@ void testInfectionNumbers(State& state, NewInfections& infections) {
     double infTotal = 0.0;
     double deltaInfection;
     for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
-        double currentLoad = state.compParms.columnLoads->at(xLoad);
+        double currentLoad = state.compParms.rowLoads->at(xLoad);
         if(xLoad == state.compParms.infectionSize - 1) {
             deltaInfection = 1 - currentLoad;
         }else {
-            deltaInfection = state.compParms.columnLoads->at(xLoad + 1) - currentLoad;
+            deltaInfection = state.compParms.rowLoads->at(xLoad + 1) - currentLoad;
         }
         for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
             double popDensityAtAge = infections.getInfecteds()->getIndex(xAge, xLoad);

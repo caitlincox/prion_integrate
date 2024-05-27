@@ -59,7 +59,7 @@ struct ComputedParams {
     // These are the infections loads for column i in the infecteds table.
     // The first column has all 0's meaning no infecteds have zero load.
     // Also there are no 0-age infecteds, so the 0 row is also 0's.
-    std::unique_ptr<std::vector<double>> columnLoads;
+    std::unique_ptr<std::vector<double>> rowLoads;
     //Holds infection differences w/o log scale for integration
     std::unique_ptr<std::vector<double>> deltaInfectionForLoad;
 };

@@ -1,5 +1,8 @@
 #include "new_infections.h"
 #include "initialconditions.h"
+#include "tests.h"
+
+#include <cassert>
 
 NewInfections::NewInfections(const State& state) {
     deltaInfections_ = std::make_unique<Infecteds>(state.compParms.ageSize, state.compParms.infectionSize);
@@ -18,16 +21,12 @@ void NewInfections::prepInfecteds(State& state) {
 // between time t* and time t* + dt.  also moves this one da, dt forward in
 // age/time
 void NewInfections::calculateDeltaSusceptibles(State& state) {
-    double betaI = calculateInfectionCoefficient(state);
-    double rate;
+    betaI_ = calculateInfectionCoefficient(state);
     auto& susceptibles = *state.susceptibles->getCurrentState();
     auto& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
-    double count;
     for (size_t xAge = 0; xAge < state.compParms.ageSize - 1; xAge++){
-        rate = betaI * susceptibles[xAge];
         //Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
-        deltaSusceptibles[xAge + 1] = rate * state.intParms.deltaTime;
-        count += deltaSusceptibles[xAge + 1] * state.intParms.deltaTime;
+        deltaSusceptibles[xAge + 1] = betaI_ * susceptibles[xAge];
     }
 }
 
@@ -38,7 +37,7 @@ double NewInfections::calculateInfectionCoefficient(State& state) {
     double loadBeta;
     double deltaLoad;
     for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
-        loadBeta = betaForLoad(state, state.compParms.columnLoads->at(xLoad)); // higher load -> more shedding
+        loadBeta = betaForLoad(state, state.compParms.rowLoads->at(xLoad)); // higher load -> more shedding
         deltaLoad = state.compParms.deltaInfectionForLoad->at(xLoad); // Integration delta for infection load. Variable b/c log linear.
         for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
             coefficient += state.infecteds->getIndex(xAge, xLoad) * deltaLoad * loadBeta;
@@ -58,9 +57,9 @@ double NewInfections::betaForLoad(State& state, double infectionLoad) {
 // Moves everything forward by d-theta
 // Note that susceptibles that move over max load via this step also vanish instantly
 void NewInfections::calculateDeltaInfecteds(State& state) {
-    double deltaArea;
     // Shorthand variables to make code less verbose
-    std::vector<double>& loadVec = *state.compParms.columnLoads, deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
+    std::vector<double>& loadVec = *state.compParms.rowLoads;
+    std::vector<double>& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
     double shapeParam = state.modParms.gammaShapeParam;
     // Counter for debugging
     double totalInfected = 0.0;
@@ -72,17 +71,20 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
             deltaInfections_->setIndex(zeros - state.compParms.infectionSize, 0, 0);
         }
     }
+    double deltaT = state.intParms.deltaTime;
     for(size_t xLoad = 1; xLoad < state.compParms.infectionSize; xLoad++) {
         // Get proportion that lands in previous infection level & advance load by 1...
         double gammaVal = gammaDist(loadVec[xLoad - 1], state.modParms.aveInitInfectionLoad, shapeParam);
-        deltaArea = state.intParms.deltaTime * state.compParms.deltaInfectionForLoad->at(xLoad);
+        double deltaArea = deltaT * state.compParms.deltaInfectionForLoad->at(xLoad);
+        double deltaAreaInv = 1.0 / deltaArea;
         // Loop over infection levels. Skip age 0 -- no infections
         for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
-            double infectedVal = deltaSusceptibles[xAge] * gammaVal;
-            totalInfected += infectedVal * deltaArea;
-            deltaInfections_->setIndex(xAge, xLoad,  infectedVal);
+            double infectedPop = deltaSusceptibles[xAge] * deltaT * gammaVal;
+            totalInfected += infectedPop;
+            deltaInfections_->setIndex(xAge, xLoad,  infectedPop * deltaAreaInv);
         }
     }
+    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_);
 }
 
 void NewInfections::moveInfecteds(State& state){
