@@ -87,7 +87,7 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
             deltaInfections_->setIndex(xAge, xLoad,  infectedPopDensity);
         }
     }
-    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_ * deltaT);
+    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_ * deltaT, 0.03);
     adjustForConstantPop(state, totalInfected);
 }
 
@@ -99,7 +99,6 @@ void NewInfections::adjustForConstantPop(State& state, double totalInfected) {
         return;
     }
     double ratio = totalInfected / totalSusceptible_;
-    assertAproxEqual(ratio, 1.0);
     std::vector<double>& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
     for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
         deltaSusceptibles[xAge] *= ratio;

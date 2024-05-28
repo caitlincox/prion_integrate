@@ -127,7 +127,9 @@ void State::writeInfectedsPGM(const std::string& filename) const {
             }
             firstTime = false;
             double popDensityAtLoad = infecteds->getIndex(xAge, rows - 1 - xLoad);
-            fprintf(file, "%u", (uint32_t)(popDensityAtLoad * 255 / compParms.maxInfectedsPop));
+            double popAtLoad = popDensityAtLoad *
+                  intParms.deltaTime * (*compParms.deltaInfectionForLoad)[xLoad];
+            fprintf(file, "%u", (uint32_t)(popAtLoad * 255 / compParms.maxInfectedsPop));
         }
         fputc('\n', file);
     }

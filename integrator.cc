@@ -32,7 +32,6 @@ void Integrator::run() {
     uint32_t epoch = 0;
     for (double time = 0.0; time < state_->intParms.totalTime;
            time += state_->intParms.deltaTime) {
-        state_->updateComputedParameters();
         uint32_t nextEpoch = computeTimeEpoch(time, state_->intParms.deltaTime,
                 state_->intParms.totalTime, 100);
         if (nextEpoch != epoch) {
@@ -42,8 +41,15 @@ void Integrator::run() {
             state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
             epoch = nextEpoch;
         }
+        // Update infecteds.
+        state_->updateComputedParameters();
+        newInfections_->prepInfecteds(*state_);
+        newInfections_->moveInfecteds(*state_);
         runTests(*state_, expectConstantPop_);
+        // Take a time step.
+        state_->updateComputedParameters();
         timeStep();
+        runTests(*state_, expectConstantPop_);
 // temp
 //        testInfection(*state_, *newInfections_);
     }
@@ -87,10 +93,6 @@ void Integrator::timeStep() {
     size_t xMaxAge = compParms.ageSize - 1;
     Infecteds* infecteds = state_->infecteds.get();
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
-    // TODO: Insert call to compute delta infecteds here.  We do this before
-    // the step because we're using forward Euler.  Add the delta in after the
-    // time step below.    
-    newInfections_->prepInfecteds(*state_);
     // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
@@ -118,6 +120,4 @@ void Integrator::timeStep() {
             infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) * deltaInfInv);
         }
     }
-    // Add newly infecteds
-    // newInfections_->moveInfecteds(*state_);
 }

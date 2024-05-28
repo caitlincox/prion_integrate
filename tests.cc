@@ -3,8 +3,8 @@
 
 #include <cassert>
 
-void assertAproxEqual(double a, double b) {
-    assert(std::abs(a - b) <= 0.01 * (a + b)/2.0);
+void assertAproxEqual(double a, double b, double tolerance) {
+    assert(std::abs(a - b) <= tolerance * (a + b)/2.0);
 }
 
 void verifySusceptibleTotal(const State& state, double expectedTotal) {
