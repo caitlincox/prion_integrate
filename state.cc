@@ -60,7 +60,7 @@ void State::initializeComputedParameters() {
     for (size_t i = 0; i < compParms.infectionSize - 1; i++) {
         deltaInfection[i] = rowLoads[i + 1] - rowLoads[i];
     }
-    testDeltaInfectionsAddToOne(*this);
+    //testDeltaInfectionsAddToOne(*this); they won't if you don't include zero bucket
 }
 
 State::State(IntegrationParams integrationParams, ModelParams modelParams) {

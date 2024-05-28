@@ -1,5 +1,10 @@
 #include "tests.h"
 #include "initialconditions.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+
 
 #include <cassert>
 
@@ -63,6 +68,7 @@ void testDistributionMeasure(double (*dist) (double, double, double), double par
 void runInitTests() {
     //testDistributionMeasure(&weibullOfAge, 0.2216, 2, 0.02, 0, 10);
     testDistributionMeasure(&gammaDist, 0.10, 5, 0.001, 0, 1);
+    printDist(&gammaDist, 0.10, 5, 0.001, 0, 1);
 };
 
 void testInfection(State&state, NewInfections& infections) {
@@ -100,13 +106,21 @@ void testInfectionNumbers(State& state, NewInfections& infections) {
 }
 
 // Tests whether an age row of infecteds (or infection) adds up to intended density
-void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, State& state) {
+void testRowSum(Infecteds& infecteds, size_t ageIndex, double expectedSum, const State& state) {
     double sum = 0;
     for (size_t i = 0; i < state.compParms.infectionSize; i++) {
         double deltaLoad = state.compParms.deltaInfectionForLoad->at(i);
         sum += infecteds.getIndex(ageIndex, i) * state.intParms.deltaTime * deltaLoad;
     }
     assertAproxEqual(sum, expectedSum);
+}
+
+void printInfectionRow(Infecteds& infecteds, size_t ageIndex, const State& state){
+    std::vector<double> arr (state.compParms.infectionSize);
+    for (size_t i = 0; i < state.compParms.infectionSize; i++) {
+        arr[i] = infecteds.getIndex(ageIndex, i);
+    }
+    printArray(arr, "row.csv");
 }
 
 // Tests if density of infecteds sums within a reasonable tolerance given our step sizes
@@ -128,4 +142,29 @@ void testDeltaInfectionsAddToOne(const State& state) {
         totalDelta += (*compParms.deltaInfectionForLoad)[i];
     }
     assertAproxEqual(totalDelta, 1.0);
+}
+
+
+void printArray(std::vector<double> array, std::string name) {
+    std::ofstream myfile(name);
+    myfile << std::fixed;
+    myfile << std::setprecision(10);
+    for(int i = 0; i < array.size(); i++) {
+      double j = array[i];
+      myfile << j << "\n";
+    }
+    myfile.flush();
+    myfile.close();
+}
+
+void printDist(double (*dist) (double, double, double), double param1, 
+                      double param2, double deltaX, double xMin, double xMax) {
+    int numSlices = (xMax - xMin) / deltaX;
+    std::vector<double> arr (numSlices);
+    double x = xMin;
+    for(int i = 0; i < numSlices; i++){
+        arr[i] = dist(x, param1, param2);
+        x += deltaX;
+    }
+    printArray(arr, "dist.csv");
 }

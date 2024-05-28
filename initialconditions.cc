@@ -1,6 +1,7 @@
 #include "initialconditions.h"
 #include <cassert>
 #include <cmath>
+#include "tests.h"
 
 double intrinsicGrowthRate(const ModelParams& modParms) {
     return log(1/modParms.aveInitInfectionLoad)/modParms.aveInfectiousPeriod;
@@ -48,7 +49,9 @@ void setInitialInfecteds(const State& state) {
     auto& infecteds = *state.infecteds;
     std::vector<double>& loadVec = *state.compParms.rowLoads, susceptibles = *state.susceptibles->getCurrentState();
     double shapeParam = state.modParms.gammaShapeParam, numSusceptibles = state.modParms.initialSusceptiblePop,
-        numInfecteds = state.modParms.initialInfectedPop; 
+        numInfecteds = state.modParms.initialInfectedPop;
+    //Since age 0 => not infected...
+    double numEffSusceptibles = numSusceptibles - susceptibles[0] * state.intParms.deltaTime;
     //Counter for debugging
     double totalInfected = 0.0;
     //double deltaArea = state.intParms.deltaTime * deltaInfection; //wrong bc transformation not measure preserving
@@ -59,12 +62,17 @@ void setInitialInfecteds(const State& state) {
         // Loop over infection levels. Skip age 0 -- no infections
         for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
             // Get normalized density of susceptibles at this age.
-            double weight = susceptibles[xAge] / numSusceptibles;
+            double weight = susceptibles[xAge] / numEffSusceptibles;
             // Get density of new infecteds at this bucket & age.
             double infectedVal = weight * gammaVal * numInfecteds;
             totalInfected += infectedVal * deltaArea;
             infecteds.setIndex(xAge, xLoad,  infectedVal);
         }
+    }
+    for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++){
+        double expected = state.intParms.deltaTime * numInfecteds * susceptibles[xAge] / numEffSusceptibles;
+        printInfectionRow(infecteds, xAge, state);
+        testRowSum(infecteds, xAge, expected, state);
     }
 }
 
