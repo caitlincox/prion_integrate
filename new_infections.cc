@@ -28,6 +28,7 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
     rate_ = betaI_ * deltaT;
     if (rate_ > 0.99) {
       // Cap it at 99% or we get numerical unstability.
+      printf("Numerical overflow!\n");
       rate_ = 0.99;
     }
     totalSusceptible_ = 0.0;

@@ -16,7 +16,7 @@ int main() {
         // if they will die of old age.
         .infectionSizeToAgesSizeRatio = 0.5, // cHANGED!!!!!    
     };
-    double totalPop = 10'000;  // 10,000
+    double totalPop = 300;  // 10,000
     double infectedPop = 1.0; // 1.0
     double susceptiblePop = totalPop - infectedPop;
     ModelParams modelParams = {
