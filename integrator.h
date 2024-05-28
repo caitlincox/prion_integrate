@@ -31,6 +31,7 @@ private:
     // These are specific to how we integrate over time.
     void computeAgeDeaths();
     void computeInfectionDeaths();
+    void computeNewInfectionDeaths();
 
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;

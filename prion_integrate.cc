@@ -9,12 +9,12 @@ int main() {
     runInitTests();
     
     IntegrationParams integrationParams = {
-        .deltaTime = 0.02,
+        .deltaTime = 0.01, //0.02
         .totalTime = 15.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
         // if they will die of old age.
-        .infectionSizeToAgesSizeRatio = 0.5, // cHANGED!!!!!    
+        .infectionSizeToAgesSizeRatio = 1, // cHANGED!!!!!    
     };
     double totalPop = 10'000;  // 10,000
     double infectedPop = 1'000; // 1.0
@@ -23,7 +23,7 @@ int main() {
         .maxAge = 10.0, //10.0
         .aveLifespan = 4.0, //4.0
         .aveInfectiousPeriod = 2.0, //2.0
-        .aveInitInfectionLoad = 0.1,
+        .aveInitInfectionLoad = 0.01, //0.1
         .beta = 0.04, //0.04
         .kappa = 2.0,
         .initialSusceptiblePop = susceptiblePop,

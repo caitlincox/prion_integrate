@@ -80,17 +80,40 @@ void Integrator::computeInfectionDeaths() {
     compParms.infectionDeaths *= state_->intParms.deltaTime; //scale by delta time
 }
 
+// Redundant code. Will refactor, but for now, easier to debug so we don't
+// have to pass class members to a class function.
+void Integrator::computeNewInfectionDeaths() {
+    ComputedParams& compParms = state_->compParms;
+    Infecteds* newInfecteds = newInfections_->getInfecteds();
+    size_t xMaxAge = compParms.ageSize - 1;
+    double newInfectionDeaths = 0.0;
+    size_t xMaxLoad = compParms.infectionSize - 1;
+    double deltaArea = compParms.deltaInfectionForLoad->at(xMaxLoad) * state_->intParms.deltaTime;
+    // The special case of the bucket that would die both from age and
+    // infection is added to the age deaths.
+    for (size_t xAge = 0; xAge < xMaxAge; xAge++) {
+        newInfectionDeaths += newInfecteds->getIndex(xAge, xMaxLoad) * deltaArea;
+    }
+    // Note that infections in a column are from 0 to 1, so total area is just deltaTime.
+    compParms.infectionDeaths += newInfectionDeaths; //scale by delta time
+}
+
 void Integrator::timeStep() {
-    computeAgeDeaths();
-    computeInfectionDeaths();
+    //Nameing things to make more readable
     ComputedParams& compParms = state_->compParms;
     size_t xMaxAge = compParms.ageSize - 1;
     Infecteds* infecteds = state_->infecteds.get();
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
-    // TODO: Insert call to compute delta infecteds here.  We do this before
-    // the step because we're using forward Euler.  Add the delta in after the
-    // time step below.    
+
+    // Calculate number to be infected. We do this because we're using forwards
+    // Euler. Add the delta back in after the timestep below.
     newInfections_->prepInfecteds(*state_);
+
+    //Calculate the ones that will die due to exceeding max infection or max age
+    computeAgeDeaths();
+    computeInfectionDeaths();
+    computeNewInfectionDeaths();
+ 
     // Now kill off population due to natural deaths.
     deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.

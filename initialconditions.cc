@@ -1,5 +1,4 @@
 #include "initialconditions.h"
-
 #include <cassert>
 #include <cmath>
 
