@@ -16,8 +16,11 @@ public:
     Infecteds* getInfecteds() {return deltaInfections_.get();}
     Susceptibles* getSusceptibles() {return deltaSusceptibles_.get();}
 private:
+    void adjustForConstantPop(State& state, double totalInfected);
+
     std::unique_ptr<Infecteds> deltaInfections_;
     std::unique_ptr<Susceptibles> deltaSusceptibles_;
     double betaI_;
+    double totalSusceptible_;
 };
 #endif

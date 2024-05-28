@@ -25,9 +25,11 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
     auto& susceptibles = *state.susceptibles->getCurrentState();
     auto& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
     double deltaT = state.intParms.deltaTime;
+    totalSusceptible_ = 0.0;
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++){
         //Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
         deltaSusceptibles[xAge] = betaI_ * susceptibles[xAge] * deltaT;
+        totalSusceptible_ += deltaSusceptibles[xAge] * deltaT;
     }
 }
 
@@ -86,6 +88,22 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
         }
     }
     assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_ * deltaT);
+    adjustForConstantPop(state, totalInfected);
+}
+
+// There are small errors introduced by the non-continuous buckets used to represent infecteds.
+// Correct the population so it is constant to within rounding errors.
+void NewInfections::adjustForConstantPop(State& state, double totalInfected) {
+    if (totalInfected == 0.0) {
+        // Nothing to do.
+        return;
+    }
+    double ratio = totalInfected / totalSusceptible_;
+    assertAproxEqual(ratio, 1.0);
+    std::vector<double>& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
+    for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++) {
+        deltaSusceptibles[xAge] *= ratio;
+    }
 }
 
 void NewInfections::moveInfecteds(State& state){
