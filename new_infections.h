@@ -22,5 +22,6 @@ private:
     std::unique_ptr<Susceptibles> deltaSusceptibles_;
     double betaI_;
     double totalSusceptible_;
+    double rate_;
 };
 #endif

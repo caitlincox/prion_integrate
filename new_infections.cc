@@ -25,10 +25,15 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
     auto& susceptibles = *state.susceptibles->getCurrentState();
     auto& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
     double deltaT = state.intParms.deltaTime;
+    rate_ = betaI_ * deltaT;
+    if (rate_ > 0.99) {
+      // Cap it at 99% or we get numerical unstability.
+      rate_ = 0.99;
+    }
     totalSusceptible_ = 0.0;
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++){
         //Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
-        deltaSusceptibles[xAge] = betaI_ * susceptibles[xAge] * deltaT;
+        deltaSusceptibles[xAge] = rate_ * susceptibles[xAge];
         totalSusceptible_ += deltaSusceptibles[xAge] * deltaT;
     }
 }
@@ -78,14 +83,14 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
             deltaInfections_->setIndex(xAge, xLoad,  infectedPopDensity);
         }
     }
-    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * betaI_ * deltaT, 0.1);
+    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * rate_, 0.1);
     adjustForConstantPop(state, totalInfected);
 }
 
 // There are small errors introduced by the non-continuous buckets used to represent infecteds.
 // Correct the population so it is constant to within rounding errors.
 void NewInfections::adjustForConstantPop(State& state, double totalInfected) {
-    if (totalInfected == 0.0) {
+    if (totalInfected < 0.0000001) {
         // Nothing to do.
         return;
     }

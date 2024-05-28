@@ -35,7 +35,10 @@ void Integrator::run() {
         uint32_t nextEpoch = computeTimeEpoch(time, state_->intParms.deltaTime,
                 state_->intParms.totalTime, 100);
         if (nextEpoch != epoch) {
-            printf("Writing graph %u\n", epoch);
+            double infectedPop = state_->compParms.infectedPop;
+            double susceptiblePop = state_->compParms.susceptiblePop;
+            printf("Writing graph %u, susecptibles = %f, infecteds = %f\n",
+                    epoch, infectedPop, susceptiblePop);
             std::string epochStr = std::to_string(epoch);
             state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
             state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
