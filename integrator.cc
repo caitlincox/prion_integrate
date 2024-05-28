@@ -42,13 +42,13 @@ void Integrator::run() {
             epoch = nextEpoch;
         }
         // Update infecteds.
-        state_->updateComputedParameters();
         newInfections_->prepInfecteds(*state_);
         newInfections_->moveInfecteds(*state_);
+        state_->updateComputedParameters();
         runTests(*state_, expectConstantPop_);
         // Take a time step.
-        state_->updateComputedParameters();
         timeStep();
+        state_->updateComputedParameters();
         runTests(*state_, expectConstantPop_);
 // temp
 //        testInfection(*state_, *newInfections_);
