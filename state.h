@@ -13,6 +13,7 @@ struct IntegrationParams {
     double deltaTime;
     double totalTime;
     double infectionSizeToAgesSizeRatio;
+    bool testMode = false;
 };
 
 //Store human-readable model parameters

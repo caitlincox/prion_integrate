@@ -4,13 +4,12 @@
 #include "integrator.h"
 #include "tests.h"
 
-int main() {
-    // TEMP TESTS
+int main(int argc, char **argv) {
     runInitTests();
     
     IntegrationParams integrationParams = {
-        .deltaTime = 0.02,
-        .totalTime = 8.0,
+        .deltaTime = 0.01,
+        .totalTime = 20.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
         // if they will die of old age.
@@ -31,6 +30,14 @@ int main() {
         .gammaShapeParam = 5.0
     };
     auto state = std::make_unique<State>(integrationParams, modelParams);
+    if (argc >= 2) {
+        if (std::string("-t") == argv[1]) {
+            state->intParms.testMode = true;
+        } else {
+          printf("Usage: prion_integrate [-t]\n");
+          return 1;
+        }
+    }
     auto births = newReplacementBirthScheme();
     auto deaths = std::make_unique<Death>(*state);
     auto infections = std::make_unique<NewInfections>(*state);

@@ -48,11 +48,15 @@ void Integrator::run() {
         newInfections_->prepInfecteds(*state_);
         newInfections_->moveInfecteds(*state_);
         state_->updateComputedParameters();
-        runTests(*state_, expectConstantPop_);
+        if (state_->intParms.testMode) {
+            runTests(*state_, expectConstantPop_);
+        }
         // Take a time step.
         timeStep();
         state_->updateComputedParameters();
-        runTests(*state_, expectConstantPop_);
+        if (state_->intParms.testMode) {
+            runTests(*state_, expectConstantPop_);
+        }
 // temp
 //        testInfection(*state_, *newInfections_);
     }
