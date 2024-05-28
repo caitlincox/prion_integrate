@@ -38,7 +38,7 @@ void Integrator::run() {
             double infectedPop = state_->compParms.infectedPop;
             double susceptiblePop = state_->compParms.susceptiblePop;
             printf("Writing graph %u, susceptibles = %f, infecteds = %f\n",
-                    epoch, infectedPop, susceptiblePop);
+                    epoch, susceptiblePop, infectedPop);
             std::string epochStr = std::to_string(epoch);
             state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
             state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");

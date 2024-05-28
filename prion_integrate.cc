@@ -10,7 +10,7 @@ int main() {
     
     IntegrationParams integrationParams = {
         .deltaTime = 0.02,
-        .totalTime = 10.0,
+        .totalTime = 8.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
         // if they will die of old age.

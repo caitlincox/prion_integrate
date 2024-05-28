@@ -22,7 +22,8 @@ tests.cc \
 new_infections.cc
 
 prion_integrate: $(HDRS) $(SRCS)
-	g++ -Wall -g -o prion_integrate $(SRCS) -lm
+	# g++ -Wall -g -o prion_integrate $(SRCS) -lm
+	g++ -Wall -O3 -o prion_integrate $(SRCS) -lm
 	mkdir -p ./data
 
 clean:
