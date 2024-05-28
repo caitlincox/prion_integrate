@@ -112,8 +112,14 @@ void Integrator::timeStep() {
     for (size_t xAge = 0; xAge < compParms.ageSize; xAge++) {
         infecteds->setIndex(xAge, 0, 0.0);
     }
+    // Zero out the min age buckets.
+    for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
+        infecteds->setIndex(0, xLoad, 0.0);
+    }
     // Add in births to suseptibles.
     susVec[0] = births;
+    // Scale infecteds by the change in cell area from one row to the next.
+    // This is because we use a density rather than a pop in each cell.
     double deltaInfInv = 1.0 / state_->compParms.deltaInfection;
     for (size_t xAge = 1; xAge < compParms.ageSize; xAge++) {
         for (size_t xLoad = 1; xLoad < compParms.infectionSize; xLoad++) {
