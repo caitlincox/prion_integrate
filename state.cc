@@ -7,6 +7,7 @@
 
 #include "initialconditions.h"
 #include "tests.h"
+#include "util.h"
 
 namespace {
 

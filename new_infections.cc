@@ -1,6 +1,7 @@
 #include "new_infections.h"
 #include "initialconditions.h"
 #include "tests.h"
+#include "util.h"
 
 #include <cassert>
 
@@ -22,6 +23,7 @@ void NewInfections::prepInfecteds(State& state) {
 // age/time
 void NewInfections::calculateDeltaSusceptibles(State& state) {
     betaI_ = calculateInfectionCoefficient(state);
+    debugPrintf("betaI = %f\n", betaI_);
     auto& susceptibles = *state.susceptibles->getCurrentState();
     auto& deltaSusceptibles = *deltaSusceptibles_->getCurrentState();
     double deltaT = state.intParms.deltaTime;
@@ -31,12 +33,14 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
       printf("Numerical overflow!\n");
       rate_ = 0.99;
     }
+    double popSize = state.compParms.popSize;
     totalSusceptible_ = 0.0;
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++){
-        //Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
-        deltaSusceptibles[xAge] = rate_ * susceptibles[xAge];
+        // Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
+        deltaSusceptibles[xAge] = rate_ * susceptibles[xAge] / popSize;
         totalSusceptible_ += deltaSusceptibles[xAge] * deltaT;
     }
+    debugPrintf("totalSusceptible = %f\n", totalSusceptible_);
 }
 
 // Given current state, calculates the integral that corresponds to "Beta * I"
@@ -45,15 +49,19 @@ double NewInfections::calculateInfectionCoefficient(State& state) {
     double coefficient = 0;
     double loadBeta;
     double deltaLoad;
+    double deltaT = state.intParms.deltaTime;
+    double totalInfected = 0.0;
     for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
         loadBeta = betaForLoad(state, state.compParms.rowLoads->at(xLoad)); // higher load -> more shedding
         deltaLoad = state.compParms.deltaInfectionForLoad->at(xLoad); // Integration delta for infection load. Variable b/c log linear.
         for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
-            coefficient += state.infecteds->getIndex(xAge, xLoad) * deltaLoad * loadBeta;
+            double infected = state.infecteds->getIndex(xAge, xLoad) * deltaLoad * deltaT;
+            totalInfected += infected;
+            coefficient += infected * loadBeta;
         }
     }
-    return coefficient * state.intParms.deltaTime; // da doens't change by age, so can multiply by it at end. (dt = da)
-
+    debugPrintf("Total infected = %f\n", totalInfected);
+    return coefficient;
 }
 
 // Linear scaling based on assumption that quantity of prions in body is
@@ -77,14 +85,15 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
         double gammaVal = gammaDist(loadVec[xLoad], state.modParms.aveInitInfectionLoad, shapeParam);
         double newDeltaLoad = state.compParms.deltaInfectionForLoad->at(xLoad);
         double newDeltaArea = deltaT * newDeltaLoad;
-        // Loop over infection levels. Skip age 0 -- no infections
+        // Loop over infection levels.
         for(size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
             double infectedPopDensity = deltaSusceptibles[xAge] * gammaVal;
             totalInfected += infectedPopDensity * newDeltaArea;
             deltaInfections_->setIndex(xAge, xLoad,  infectedPopDensity);
         }
     }
-    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * rate_, 0.1);
+    double popSize = state.compParms.popSize;
+    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * rate_ / popSize, 0.1);
     adjustForConstantPop(state, totalInfected);
 }
 

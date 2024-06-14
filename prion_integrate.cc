@@ -3,13 +3,14 @@
 #include "new_infections.h"
 #include "integrator.h"
 #include "tests.h"
+#include "util.h"
 
 int main(int argc, char **argv) {
     runInitTests();
     
     IntegrationParams integrationParams = {
         .deltaTime = 0.01,
-        .totalTime = 20.0,
+        .totalTime = 10.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
         // if they will die of old age.
@@ -30,11 +31,14 @@ int main(int argc, char **argv) {
         .gammaShapeParam = 5.0
     };
     auto state = std::make_unique<State>(integrationParams, modelParams);
-    if (argc >= 2) {
-        if (std::string("-t") == argv[1]) {
-            state->intParms.testMode = true;
+    int xArg = 1;
+    while (xArg < argc) {
+        if (std::string("-t") == argv[xArg]) {
+            testMode = true;
+        } else if (std::string("-d") == argv[xArg]) {
+            debugMode = true;
         } else {
-          printf("Usage: prion_integrate [-t]\n");
+          printf("Usage: prion_integrate [-t] [-d]\n");
           return 1;
         }
     }

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "tests.h"
+#include "util.h"
 
 Integrator::Integrator(
     std::unique_ptr<BirthScheme> births,
@@ -48,13 +49,13 @@ void Integrator::run() {
         newInfections_->prepInfecteds(*state_);
         newInfections_->moveInfecteds(*state_);
         state_->updateComputedParameters();
-        if (state_->intParms.testMode) {
+        if (testMode) {
             runTests(*state_, expectConstantPop_);
         }
         // Take a time step.
         timeStep();
         state_->updateComputedParameters();
-        if (state_->intParms.testMode) {
+        if (testMode) {
             runTests(*state_, expectConstantPop_);
         }
 // temp
