@@ -9,26 +9,26 @@ int main(int argc, char **argv) {
     runInitTests();
     
     IntegrationParams integrationParams = {
-        .deltaTime = 0.02,
-        .totalTime = 20.0,
+        .deltaTime = 0.02, // 0.01
+        .totalTime = 20.0, // 20
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
         // if they will die of old age.
-        .infectionSizeToAgesSizeRatio = 0.5, // cHANGED!!!!!    
+        .infectionSizeToAgesSizeRatio = 0.5, // 0.5
     };
-    double totalPop = 200;  // 200
+    double totalPop = 150; // 150
     double infectedPop = 1.0; // 1.0
     double susceptiblePop = totalPop - infectedPop;
     ModelParams modelParams = {
-        .maxAge = 10.0, //10.0
-        .aveLifespan = 4.0, //4.0
+        .maxAge = 10.0, // 20.0
+        .aveLifespan = 1.5, // 4.0
         .aveInfectiousPeriod = 2.0, //2.0
         .aveInitInfectionLoad = 0.1, // 0.1
-        .beta = 0.0125, //0.04
+        .beta = 0.04, //0.04
         .kappa = 2.0,
         .initialSusceptiblePop = susceptiblePop,
         .initialInfectedPop = infectedPop,
-        .gammaShapeParam = 5.0
+        .gammaShapeParam = 5.0, // 5.0
     };
     auto state = std::make_unique<State>(integrationParams, modelParams);
     int xArg = 1;
