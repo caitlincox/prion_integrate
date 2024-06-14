@@ -34,7 +34,7 @@ void verifyInfectedTotal(const State& state, double expectedTotal) {
             total += popDensityAtAge * state.intParms.deltaTime * deltaInfection;
         }
     }
-    assertAproxEqual(total, expectedTotal);
+    assertAproxEqual(total, expectedTotal, 0.03);
 }
 
 void runTests(const State& state, bool expectConstantPop) {

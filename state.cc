@@ -26,7 +26,9 @@ void State::initializeComputedParameters() {
     compParms.ageSize = modParms.maxAge / intParms.deltaTime;
     compParms.infectionSize = compParms.ageSize * intParms.infectionSizeToAgesSizeRatio;
     compParms.lambda = findLambda(modParms.aveLifespan, modParms.kappa);
+    printf("Lambda = %f\n", compParms.lambda);
     setStartingDistribution(*this);
+    printf("intrinsic growth rate = %f\n", compParms.intrinsicGrowthRate);
     // We represent load buckets on a natural log scale.  This model throws
     // away loads that are very small, which otherwise would show up as animals
     // with longer incubation periods.  To model longer incubation periods,

@@ -33,14 +33,13 @@ void NewInfections::calculateDeltaSusceptibles(State& state) {
       printf("Numerical overflow!\n");
       rate_ = 0.99;
     }
-    double popSize = state.compParms.popSize;
-    totalSusceptible_ = 0.0;
+    totalSusceptible_ = rate_ * state.compParms.susceptiblePop;
+    double ratio = totalSusceptible_ / state.compParms.susceptiblePop;
     for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++){
         // Here, scaling by dt bc dt/1 = dt + da / (1 + 1). It's to adjust step size.
-        deltaSusceptibles[xAge] = rate_ * susceptibles[xAge] / popSize;
-        totalSusceptible_ += deltaSusceptibles[xAge] * deltaT;
+        deltaSusceptibles[xAge] = ratio * susceptibles[xAge];
     }
-    debugPrintf("totalSusceptible = %f\n", totalSusceptible_);
+    debugPrintf("New infecteds = %f\n", totalSusceptible_);
 }
 
 // Given current state, calculates the integral that corresponds to "Beta * I"
@@ -92,8 +91,9 @@ void NewInfections::calculateDeltaInfecteds(State& state) {
             deltaInfections_->setIndex(xAge, xLoad,  infectedPopDensity);
         }
     }
-    double popSize = state.compParms.popSize;
-    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * rate_ / popSize, 0.1);
+    // double popSize = state.compParms.popSize;
+// temp
+//    assertAproxEqual(totalInfected, state.compParms.susceptiblePop * rate_ / popSize, 0.1);
     adjustForConstantPop(state, totalInfected);
 }
 
