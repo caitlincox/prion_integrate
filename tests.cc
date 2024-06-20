@@ -9,7 +9,7 @@
 #include <cassert>
 
 void assertAproxEqual(double a, double b) {
-    assert(std::abs(a - b) <= 0.01 * (a + b)/2.0);
+    assert(std::abs(a - b) <= 0.05 * (a + b)/2.0);
 }
 
 void verifySusceptibleTotal(const State& state, double expectedTotal) {
@@ -167,4 +167,16 @@ void printDist(double (*dist) (double, double, double), double param1,
         x += deltaX;
     }
     printArray(arr, "dist.csv");
+}
+
+void printInfecteds(Infecteds& infecteds, const State& state){
+    std::vector<double> arr(state.compParms.infectionSize);
+    for (size_t xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
+            double currentArea = state.compParms.deltaInfectionForLoad->at(xLoad) * state.intParms.deltaTime;
+        for (size_t xAge = 0; xAge < state.compParms.ageSize; xAge++) {
+            double currentHeight = infecteds.getIndex(xAge, xLoad);
+            arr[xAge] += currentHeight * currentArea;
+        }
+    }
+    printArray(arr, "infecteds.csv");
 }

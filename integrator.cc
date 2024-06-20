@@ -30,16 +30,28 @@ uint32_t computeTimeEpoch(float time, float deltaTime, float totalTime, uint32_t
 
 void Integrator::run() {
     uint32_t epoch = 0;
+    std::vector<double> graphSus;
+    std::vector<double> graphInf;
+    graphSus.push_back(integrateSusceptibles(*state_->susceptibles));
+    graphInf.push_back(integrateInfecteds(*state_->infecteds, *state_));
     for (double time = 0.0; time < state_->intParms.totalTime;
            time += state_->intParms.deltaTime) {
         state_->updateComputedParameters();
         uint32_t nextEpoch = computeTimeEpoch(time, state_->intParms.deltaTime,
                 state_->intParms.totalTime, 100);
+        graphSus.push_back(state_->compParms.susceptiblePop);
+        graphInf.push_back(integrateInfecteds(*state_->infecteds, *state_));
         if (nextEpoch != epoch) {
             printf("Writing graph %u\n", epoch);
             std::string epochStr = std::to_string(epoch);
-            state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
-            state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
+            //printArray(*state_->susceptibles->getCurrentState(), "sus" + std::to_string(time));
+            //state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
+            //state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
+            if(epoch == 98){
+             printArray(*state_->susceptibles->getCurrentState(), "sus_snap");
+             printArray(graphSus, "sus.csv");
+             printArray(graphInf, "inf.csv");
+            }
             epoch = nextEpoch;
         }
         runTests(*state_, expectConstantPop_);
@@ -95,7 +107,62 @@ void Integrator::computeNewInfectionDeaths() {
         newInfectionDeaths += newInfecteds->getIndex(xAge, xMaxLoad) * deltaArea;
     }
     // Note that infections in a column are from 0 to 1, so total area is just deltaTime.
-    compParms.infectionDeaths += newInfectionDeaths; //scale by delta time
+    compParms.infectionDeaths += newInfectionDeaths;
+}
+
+double Integrator::integrateInfecteds(Infecteds& infecteds, State& state) {
+    double total = 0.0;
+    for (int xLoad = 0; xLoad < state.compParms.infectionSize; xLoad++) {
+        double deltaArea = state.intParms.deltaTime * state.compParms.deltaInfectionForLoad->at(xLoad);
+        for (int xAge = 0; xAge < state.compParms.ageSize; xAge++) {
+            total += infecteds.getIndex(xAge, xLoad) * deltaArea;
+        }
+    }
+    return total;
+}
+
+double Integrator::integrateSusceptibles(Susceptibles& susceptibles) {
+    double total = 0.0;
+    for (int xAge = 0; xAge < state_->compParms.ageSize; xAge++){
+        total += susceptibles.getCurrentState()->at(xAge) * state_->intParms.deltaTime;
+    }
+    return total;
+}
+//Calculates amount to be moved prior to modifing population
+void Integrator::calculateDeltas() {
+    // Calculate number to be infected. We do this because we're using forwards
+    // Euler. Add the delta back in after the timestep below.
+    newInfections_->prepInfecteds(*state_);
+    double wot = integrateSusceptibles(*newInfections_->getSusceptibles());
+    //Calculate the ones that will die due to exceeding max infection or max age
+    computeAgeDeaths();
+    computeInfectionDeaths();
+    computeNewInfectionDeaths();
+
+    // Now kill off population due to natural deaths.
+    // Later would like to pre-calculate deaths.
+    deaths_->kill(*state_);
+    adjustSusceptibles();
+    newInfections_->calculateDeltaInfecteds(*state_);
+    adjustInfecteds();
+}
+
+// forces to be non-negative
+void Integrator::adjustSusceptibles() {
+    for(int xAge = 0; xAge < state_->compParms.ageSize; xAge++) {
+        if (state_->susceptibles->getCurrentState()->at(xAge) < newInfections_->getSusceptibles()->getCurrentState()->at(xAge)) {
+            newInfections_->getSusceptibles()->getCurrentState()->at(xAge) = state_->susceptibles->getCurrentState()->at(xAge);
+        }
+    }
+}
+
+void Integrator::adjustInfecteds() {
+    double expectedVal = integrateSusceptibles(*newInfections_->getSusceptibles());
+    double outputVal = integrateInfecteds(*newInfections_->getInfecteds(), *state_);
+    if(outputVal != 0.0) { 
+        newInfections_->getInfecteds()->rescaleInfecteds(expectedVal/outputVal);
+    }
+    assertAproxEqual(expectedVal, integrateInfecteds(*newInfections_->getInfecteds(), *state_));
 }
 
 void Integrator::timeStep() {
@@ -105,21 +172,12 @@ void Integrator::timeStep() {
     Infecteds* infecteds = state_->infecteds.get();
     std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
 
-    // Calculate number to be infected. We do this because we're using forwards
-    // Euler. Add the delta back in after the timestep below.
-    newInfections_->prepInfecteds(*state_);
+    calculateDeltas();
 
-    //Calculate the ones that will die due to exceeding max infection or max age
-    computeAgeDeaths();
-    computeInfectionDeaths();
-    computeNewInfectionDeaths();
- 
-    // Now kill off population due to natural deaths.
-    deaths_->kill(*state_);
     // Compute births.  Add it in after the time step.
     double births = births_->calculateBirth(*state_);
-    //deaths_->kill(*state_); goes here if not replacement
-    
+    newInfections_->moveInfecteds(*state_);
+
     // Now advance time by deltaTime.
     // Move all susceptiblees to one higher age index.
     double* susPtr = &susVec[0];
@@ -129,18 +187,21 @@ void Integrator::timeStep() {
     double* infectedPtr = infecteds->getInfectionRow(0);
     size_t numMoving = xMaxAge * compParms.infectionSize - 1;
     memmove(infectedPtr + compParms.infectionSize + 1, infectedPtr, numMoving * sizeof(double));
-    // Zero out the min infection buckets.
+    // Zero out the min infection buckets and min age buckets.
     for (size_t xAge = 0; xAge < compParms.ageSize; xAge++) {
         infecteds->setIndex(xAge, 0, 0.0);
     }
+    for (size_t xLoad = 0; xLoad < compParms.infectionSize; xLoad++) {
+        infecteds->setIndex(0, xLoad, 0.0);
+    }
     // Add in births to suseptibles.
+    if (births < 0) births = 0;
     susVec[0] = births;
-    double deltaInfInv = 1.0 / state_->compParms.deltaInfection;
+    // Add newly infecteds
+   double adjustmentFactor = 1.0/state_->compParms.deltaInfection;
     for (size_t xAge = 1; xAge < compParms.ageSize; xAge++) {
         for (size_t xLoad = 1; xLoad < compParms.infectionSize; xLoad++) {
-            infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) * deltaInfInv);
-        }
+            infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) * adjustmentFactor);
+       }
     }
-    // Add newly infecteds
-   newInfections_->moveInfecteds(*state_);
 }

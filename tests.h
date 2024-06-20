@@ -19,7 +19,6 @@ void printArray (std::vector<double> array, std::string name);
 void printDist(double (*dist) (double, double, double), double param1, 
                       double param2, double deltaX, double xMin, double xMax);
 void printInfectionRow(Infecteds& infecteds, size_t ageIndex, const State& state);
-
-
+void printInfecteds(Infecteds&infecteds, const State& state);
 
 #endif

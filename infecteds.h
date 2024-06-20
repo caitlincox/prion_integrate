@@ -14,6 +14,7 @@ public:
         ageSize_ = ageSize;
         infectionSize_ = infectionSize;
     }
+    void rescaleInfecteds(double scalingFactor);
     //getters and setters
     std::vector<double>* getCurrentState() {return currentState_.get();}
     double getIndex(size_t ageIndex, size_t infectionIndex) {

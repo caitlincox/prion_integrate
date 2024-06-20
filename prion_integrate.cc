@@ -9,15 +9,15 @@ int main() {
     runInitTests();
     
     IntegrationParams integrationParams = {
-        .deltaTime = 0.001, //0.02
-        .totalTime = 15.0,
+        .deltaTime = 0.02, //0.02
+        .totalTime = 40.0,
         // For now, use ageSize == infectionSize.  There is an argument for
         // 2*ageSize or more, because infected animals can spread disease even
         // if they will die of old age.
         .infectionSizeToAgesSizeRatio = 0.5, // cHANGED!!!!!    
     };
-    double totalPop = 10'000;  // 10,000
-    double infectedPop = 1'000; // 1.0
+    double totalPop = 150;  // 200
+    double infectedPop = 0; // 1.0
     double susceptiblePop = totalPop - infectedPop;
     ModelParams modelParams = {
         .maxAge = 10.0, //10.0
@@ -40,3 +40,6 @@ int main() {
     integrator.run();
     return 0;
 }
+
+// NOTES TO SELF:
+// CURRENTLY PREDATOR-MODIFIED

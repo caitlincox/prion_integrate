@@ -12,6 +12,8 @@ Death::Death(const State& state) {
 // Given age, calculate survival coefficient
 double Death::weibullDeathRate(double age) {
     double deathRate = weibullSurvivorshipKappa_ * weibullSurvivorshipLambda_ * pow(weibullSurvivorshipLambda_ * age, weibullSurvivorshipKappa_ - 1);
+    deathRate += age/10 * 0.0; //PREDATOR MODIFIED
+    if(deathRate > 1.0) { deathRate = 1.0; } //PREDATOR MODIFIED PAKJDF;KJ
     return deathRate;
 }
 
@@ -21,7 +23,7 @@ void Death::kill(State& state) {
     //will also only kill off susceptibles for now
     double susceptibleDeaths = 0; //this is a counter
     double infectedDeaths = 0;
-    for (size_t ageIndex = 0; ageIndex < state.compParms.ageSize; ageIndex++){
+    for (size_t ageIndex = 0; ageIndex < state.compParms.ageSize - 1; ageIndex++){ //age size - 1 to avoid double counting with age deaths
         double ageInYears = (double) ageIndex * state.intParms.deltaTime;
         //removes susceptible density & returns amount subtracted
         susceptibleDeaths += killSusceptibles(ageInYears, state, ageIndex);
@@ -46,13 +48,13 @@ double Death::killInfecteds(double ageInYears, State& state, size_t ageIndex){
     double infDeathRate = weibullDeathRate(ageInYears) * state.intParms.deltaTime;
     double infDeaths = 0;
     double deltaInfection;
-    for (size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize; infectionIndex++){ 
+    //infection size -1 to avoid double counting infection deaths
+    for (size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize - 1; infectionIndex++){ 
         double currentInfecteds = state.infecteds->getIndex(ageIndex, infectionIndex);
         double infectedsKilled = currentInfecteds * infDeathRate;
         deltaInfection = state.compParms.deltaInfectionForLoad->at(infectionIndex);
         state.infecteds->setIndex(ageIndex, infectionIndex, currentInfecteds - infectedsKilled);
         infDeaths += infectedsKilled * deltaInfection; //we integrate out infection to find density at age
     }
-    
     return infDeaths; //height of age vs pop density function for infecteds at age
 }

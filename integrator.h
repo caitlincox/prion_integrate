@@ -32,6 +32,15 @@ private:
     void computeAgeDeaths();
     void computeInfectionDeaths();
     void computeNewInfectionDeaths();
+    void calculateDeltas();
+    void adjustSusceptibles();
+    void adjustInfecteds();
+
+
+    //integrate over space-like variables
+    double integrateInfecteds(Infecteds& infecteds, State& state);
+    double integrateSusceptibles(Susceptibles& susceptibles);// NOT IMPLEMENTED
+
 
     std::unique_ptr<BirthScheme> births_;
     std::unique_ptr<Death> deaths_;

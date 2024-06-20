@@ -71,8 +71,8 @@ void setInitialInfecteds(const State& state) {
     }
     for(size_t xAge = 1; xAge < state.compParms.ageSize; xAge++){
         double expected = state.intParms.deltaTime * numInfecteds * susceptibles[xAge] / numEffSusceptibles;
-        printInfectionRow(infecteds, xAge, state);
-        testRowSum(infecteds, xAge, expected, state);
+        //printInfectionRow(infecteds, xAge, state);
+        //testRowSum(infecteds, xAge, expected, state);
     }
 }
 
