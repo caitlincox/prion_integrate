@@ -20,6 +20,7 @@ public:
         std::unique_ptr<NewInfections> newInfections,
         bool expectConstantPop);
     void run();
+    void dryRun(double runs);
     const State& getState() {
         return *state_.get();
     }

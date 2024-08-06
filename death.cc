@@ -12,9 +12,21 @@ Death::Death(const State& state) {
 // Given age, calculate survival coefficient
 double Death::weibullDeathRate(double age) {
     double deathRate = weibullSurvivorshipKappa_ * weibullSurvivorshipLambda_ * pow(weibullSurvivorshipLambda_ * age, weibullSurvivorshipKappa_ - 1);
-    deathRate += age/10 * 0.0; //PREDATOR MODIFIED
-    if(deathRate > 1.0) { deathRate = 1.0; } //PREDATOR MODIFIED PAKJDF;KJ
     return deathRate;
+}
+
+double PredatorScheme::weibullDeathRate(double age) {
+    double deathRate = weibullSurvivorshipKappa_ * weibullSurvivorshipLambda_ * pow(weibullSurvivorshipLambda_ * age, weibullSurvivorshipKappa_ - 1);
+    deathRate += deathConst_ * age / maxAge_;
+    if (deathRate > 1) { deathRate = 1; }
+    return deathRate;
+}
+
+double sexScheme::weibullDeathRate(double age) {
+    double propFemale = exp(-femRate_ * age)/(exp(-femRate_ * age) + exp(-malRate_ * age));
+    double propMale = 1 - propFemale;
+    double rate = propFemale * femRate_ + propMale * malRate_;
+    return rate;
 }
 
 // Kill off population due to natural deaths (e.g. getting eaten).
@@ -49,9 +61,13 @@ double Death::killInfecteds(double ageInYears, State& state, size_t ageIndex){
     double infDeaths = 0;
     double deltaInfection;
     //infection size -1 to avoid double counting infection deaths
-    for (size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize - 1; infectionIndex++){ 
+    for (size_t infectionIndex = 0; infectionIndex < state.compParms.infectionSize - 1; infectionIndex++){
+        double deathRateAtLoad = infDeathRate + state.modParms.infectionDeathLoadMultiplier * state.compParms.rowLoads->at(infectionIndex);
+        if (deathRateAtLoad > 1.0) { 
+            deathRateAtLoad = 1.0; 
+            }
         double currentInfecteds = state.infecteds->getIndex(ageIndex, infectionIndex);
-        double infectedsKilled = currentInfecteds * infDeathRate;
+        double infectedsKilled = currentInfecteds * deathRateAtLoad;
         deltaInfection = state.compParms.deltaInfectionForLoad->at(infectionIndex);
         state.infecteds->setIndex(ageIndex, infectionIndex, currentInfecteds - infectedsKilled);
         infDeaths += infectedsKilled * deltaInfection; //we integrate out infection to find density at age

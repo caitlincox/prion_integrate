@@ -12,5 +12,4 @@ void setStartingDistribution(const State& state);
 void setInitialInfecteds(const State& state);
 double gammaDist(double infectionLoad, double aveInitInfectionLoad, double shapeParam);
 
-
 #endif

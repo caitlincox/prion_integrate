@@ -34,6 +34,8 @@ void Integrator::run() {
     std::vector<double> graphInf;
     graphSus.push_back(integrateSusceptibles(*state_->susceptibles));
     graphInf.push_back(integrateInfecteds(*state_->infecteds, *state_));
+    printArray(*state_->susceptibles->getCurrentState(), "sus_snap");
+
     for (double time = 0.0; time < state_->intParms.totalTime;
            time += state_->intParms.deltaTime) {
         state_->updateComputedParameters();
@@ -47,13 +49,14 @@ void Integrator::run() {
             //printArray(*state_->susceptibles->getCurrentState(), "sus" + std::to_string(time));
             //state_->writeSusceptiblesPBM("data/suseptibles_" + epochStr + ".pbm", 2);
             //state_->writeInfectedsPGM("data/infecteds_" + epochStr + ".pgm");
-            if(epoch == 98){
-             printArray(*state_->susceptibles->getCurrentState(), "sus_snap");
-             printArray(graphSus, "sus.csv");
-             printArray(graphInf, "inf.csv");
-            }
             epoch = nextEpoch;
         }
+        if(state_->intParms.totalTime - time <= state_->intParms.deltaTime) {
+             printArray(graphSus, "sus.csv");
+             printArray(graphInf, "inf.csv");
+             printArray(*state_->susceptibles->getCurrentState(), "sus_snap");
+
+            }
         runTests(*state_, expectConstantPop_);
         timeStep();
 // temp
@@ -204,4 +207,49 @@ void Integrator::timeStep() {
             infecteds->setIndex(xAge, xLoad, infecteds->getIndex(xAge, xLoad) * adjustmentFactor);
        }
     }
+}
+
+void Integrator::dryRun(double runs) {
+    //Nameing things to make more readable
+    ComputedParams& compParms = state_->compParms;
+    size_t xMaxAge = compParms.ageSize - 1;
+    std::vector<double>& susVec = *state_->susceptibles->getCurrentState();
+    
+    for (int i = 0; i < runs/state_->intParms.deltaTime; i++) {
+        //update computed params
+        state_->updateComputedParameters();
+        runTests(*state_, expectConstantPop_);
+
+
+        //do age-related death
+        compParms.ageDeaths = susVec[compParms.ageSize - 1] * state_->intParms.deltaTime;
+        susVec[compParms.ageSize - 1] = 0.0;
+
+        //do natural deaths
+        double deaths = 0;
+        for (size_t ageIndex = 0; ageIndex < compParms.ageSize - 1; ageIndex++){ //age size - 1 to avoid double counting with age deaths
+            double ageInYears = (double) ageIndex * state_->intParms.deltaTime;
+            //removes susceptible density & returns amount subtracted
+            deaths += deaths_->killSusceptibles(ageInYears, *state_, ageIndex);
+        }
+        compParms.naturalDeaths = deaths * state_->intParms.deltaTime;
+
+        //set to avoid errors
+        compParms.infectionDeaths = 0.0;
+
+        adjustSusceptibles();
+
+        // Compute births.  Add it in after the time step.
+        double births = births_->calculateBirth(*state_);
+
+        // Now advance time by deltaTime.
+        // Move all susceptiblees to one higher age index.
+        double* susPtr = &susVec[0];
+        memmove(susPtr + 1, susPtr, xMaxAge * sizeof(double));
+        // Add in births to suseptibles.
+        if (births < 0) births = 0;
+        susVec[0] = births;
+        // Add newly infecteds
+    }
+    state_->writeSusceptiblesPBM("data/suseptibles_dry.pbm", 2);
 }

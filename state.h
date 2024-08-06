@@ -28,6 +28,7 @@ struct ModelParams {
     double initialSusceptiblePop;
     double initialInfectedPop;
     double gammaShapeParam; //in Stringer et al. this param is called "c"
+    double infectionDeathLoadMultiplier; //death due to infection ~ infection load. This is coefficient.
 };
 
 // Parameters computed on the fly.
