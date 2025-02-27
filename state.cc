@@ -35,7 +35,7 @@ void State::initializeComputedParameters() {
     // load modeled.  We have to compute this bucket's load.  Call 'b' the
     // number of infection load buckets.  When load reaches 1, the animal dies,
     // so the max bucket is the one just before reaching 1.  We can compute 1 =
-    // e^w * e^(C*dt*b) => 0 = w + C*dt*b => w = -C*dt*b.  The first bucketk
+    // e^w * e^(C*dt*b) => 0 = w + C*dt*b => w = -C*dt*b.  The first bucket
     // has load e^w.  After that the load is (e^w)*e^(C*dt*bucketIndex),
     // where bucketIndex is on the infection load axis.  At bucketIndex == 0,
     // we have the minimum represented load of e^w.  The bucket index with
